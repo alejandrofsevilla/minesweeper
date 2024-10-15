@@ -12,11 +12,11 @@
 
 class View {
 public:
-  enum class Button { Quit, Restart, Size9x9, Size16x16, Size30x16, None };
+  enum class Button { Quit, Restart, Size9x9, Size16x16, Size30x16 };
 
   View(sf::RenderWindow &window, Model &model);
 
-  Button highlightedButton() const;
+  std::optional<Button> highlightedButton() const;
   std::optional<Cell> highlightedCell() const;
 
   void update();
@@ -25,14 +25,14 @@ public:
   void closeWindow();
 
 private:
-  enum class TextBoxStyle { Text, Button };
+  enum class ButtonStyle { Text, Button };
   void drawMainScreen();
   void drawBackground();
   void drawCells();
   void drawTopMenu();
   void drawCell(std::size_t row, std::size_t column);
-  bool drawTextBox(const std::string &content, const sf::Vector2f &position,
-                   float width, TextBoxStyle style);
+  bool drawMenuButton(const std::string &content, const sf::Vector2f &position,
+                      float width, ButtonStyle style);
 
   sf::Vector2f computeCellSize() const;
   sf::Vector2f computeCellPosition(std::size_t row, std::size_t column) const;
@@ -40,7 +40,7 @@ private:
   Model &m_model;
   sf::RenderWindow &m_window;
   sf::Font m_font;
-  Button m_highlightedButton;
+  std::optional<Button> m_highlightedButton;
   std::optional<Cell> m_highlightedCell;
   float m_zoomLevel;
 };
