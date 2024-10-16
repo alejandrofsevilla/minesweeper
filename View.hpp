@@ -26,28 +26,28 @@ public:
 private:
   enum class ButtonType { MenuBar, Cell };
   enum class ButtonStatus { Released, Highlighted, Pressed };
+
   void drawBackground();
   void drawCells();
   void drawMenuBar();
-  void drawButton(sf::RectangleShape &button, const sf::Texture &icon);
-  void drawButton(sf::RectangleShape &button, const std::string &content);
   void drawCellButton(std::size_t row, std::size_t column);
   void drawMenuBarButton(const sf::Vector2f &position, Button buttonId,
                          ButtonStatus status);
+  void fillButton(sf::RectangleShape &button, const sf::Texture &icon);
+  void fillButton(sf::RectangleShape &button, const std::string &content);
 
-  ButtonStatus computeButtonStatus(const sf::RectangleShape &button) const;
-  sf::RectangleShape makeEmptyButton(const sf::Vector2f &position,
-                                     ButtonType type);
+  sf::RectangleShape makeButton(const sf::Vector2f &position, ButtonType type);
   sf::Color computeButtonColor(ButtonType type, ButtonStatus status) const;
   sf::Vector2f computeButtonSize(ButtonType type) const;
   sf::Vector2f computeCellSize() const;
   sf::Vector2f computeCellPosition(std::size_t row, std::size_t column) const;
+  ButtonStatus computeButtonStatus(const sf::RectangleShape &button) const;
 
   Model &m_model;
   sf::RenderWindow &m_window;
   sf::Font m_font;
   std::optional<Button> m_highlightedButton;
-  std::optional<Cell> m_highlightedCell;
+  std::optional<Cell> m_highlightedCell; // TODO: maybe a pair<size_t, size_t>
   float m_zoomLevel;
 };
 

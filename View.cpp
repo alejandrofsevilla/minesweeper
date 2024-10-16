@@ -84,7 +84,7 @@ void View::drawMenuBar() {
   drawMenuBarButton(position, Button::Size30x16, ButtonStatus::Released);
   position.x += f_menuBarButtonWidth;
   position.x = static_cast<float>(m_window.getSize().x) - f_menuBarButtonWidth;
-  auto textBox{makeEmptyButton(position, ButtonType::MenuBar)};
+  auto textBox{makeButton(position, ButtonType::MenuBar)};
   textBox.setFillColor(
       computeButtonColor(ButtonType::MenuBar, ButtonStatus::Pressed));
   drawButton(textBox, "00:00");
@@ -93,27 +93,9 @@ void View::drawMenuBar() {
   drawButton(textBox, "99");
 }
 
-void View::drawButton(sf::RectangleShape &button, const sf::Texture &icon) {
-  button.setTexture(&icon);
-  m_window.draw(button);
-}
-
-void View::drawButton(sf::RectangleShape &button, const std::string &content) {
-  sf::Text text{content, m_font};
-  text.setCharacterSize(f_fontSize);
-  auto buttonPosition{button.getPosition()};
-  auto buttonSize{button.getSize()};
-  text.setPosition(buttonPosition.x +
-                       (buttonSize.x - text.getLocalBounds().width) * .5f,
-                   buttonPosition.y + f_menuBarButtonTextVPosition);
-  text.setFillColor(f_fontColor);
-  m_window.draw(button);
-  m_window.draw(text);
-}
-
 void View::drawCellButton(std::size_t col, std::size_t row) {
   auto position{computeCellPosition(col, row)};
-  auto button{makeEmptyButton(position, ButtonType::Cell)};
+  auto button{makeButton(position, ButtonType::Cell)};
   auto buttonStatus{computeButtonStatus(button)};
   if (buttonStatus != ButtonStatus::Released) {
     m_highlightedCell = {col, row};
@@ -133,12 +115,13 @@ void View::drawCellButton(std::size_t col, std::size_t row) {
     break;
   }
   button.setFillColor(computeButtonColor(ButtonType::Cell, buttonStatus));
-  drawButton(button, ""); // TODO: draw with icon instead
+  fillButton(button, ""); // TODO: draw with icon instead
+  m_window.draw(button);
 }
 
 void View::drawMenuBarButton(const sf::Vector2f &position, Button buttonId,
                              ButtonStatus status) {
-  auto button{makeEmptyButton(position, ButtonType::MenuBar)};
+  auto button{makeButton(position, ButtonType::MenuBar)};
   if (status != ButtonStatus::Pressed) {
     status = computeButtonStatus(button);
     if (status != ButtonStatus::Released) {
@@ -165,22 +148,26 @@ void View::drawMenuBarButton(const sf::Vector2f &position, Button buttonId,
   }
 }
 
-View::ButtonStatus
-View::computeButtonStatus(const sf::RectangleShape &button) const {
-  auto isMouseHoveringButton{button.getGlobalBounds().contains(
-      m_window.mapPixelToCoords(sf::Mouse::getPosition(m_window)))};
-  auto isMousePressed{sf::Mouse::isButtonPressed(sf::Mouse::Left)};
-  if (isMouseHoveringButton) {
-    if (isMousePressed) {
-      return ButtonStatus::Pressed;
-    }
-    return ButtonStatus::Highlighted;
-  }
-  return ButtonStatus::Released;
-};
+void View::fillButton(sf::RectangleShape &button, const sf::Texture &icon) {
+  button.setTexture(&icon);
+  m_window.draw(button);
+}
 
-sf::RectangleShape View::makeEmptyButton(const sf::Vector2f &position,
-                                         ButtonType type) {
+void View::fillButton(sf::RectangleShape &button, const std::string &content) {
+  sf::Text text{content, m_font};
+  text.setCharacterSize(f_fontSize);
+  auto buttonPosition{button.getPosition()};
+  auto buttonSize{button.getSize()};
+  text.setPosition(buttonPosition.x +
+                       (buttonSize.x - text.getLocalBounds().width) * .5f,
+                   buttonPosition.y + f_menuBarButtonTextVPosition);
+  text.setFillColor(f_fontColor);
+  m_window.draw(button);
+  m_window.draw(text);
+}
+
+sf::RectangleShape View::makeButton(const sf::Vector2f &position,
+                                    ButtonType type) {
   auto size{computeButtonSize(type)};
   sf::RectangleShape rect{{size.x - 2 * f_buttonOutlineThickness,
                            size.y - 2 * f_buttonOutlineThickness}};
@@ -250,3 +237,17 @@ sf::Vector2f View::computeCellPosition(std::size_t col, std::size_t row) const {
   return {topLeftCellHPos + static_cast<float>(col) * cellSize.x,
           topLeftCellVPos + static_cast<float>(row) * cellSize.y};
 }
+
+View::ButtonStatus
+View::computeButtonStatus(const sf::RectangleShape &button) const {
+  auto isMouseHoveringButton{button.getGlobalBounds().contains(
+      m_window.mapPixelToCoords(sf::Mouse::getPosition(m_window)))};
+  auto isMousePressed{sf::Mouse::isButtonPressed(sf::Mouse::Left)};
+  if (isMouseHoveringButton) {
+    if (isMousePressed) {
+      return ButtonStatus::Pressed;
+    }
+    return ButtonStatus::Highlighted;
+  }
+  return ButtonStatus::Released;
+};
