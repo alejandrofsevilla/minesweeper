@@ -1,14 +1,13 @@
-#ifndef GAME_OF_LIFE_VIEW_HPP
-#define GAME_OF_LIFE_VIEW_HPP
+#ifndef MINESWEEPER_VIEW_HPP
+#define MINESWEEPER_VIEW_HPP
 
 #include <SFML/Graphics/RenderWindow.hpp>
 #include <SFML/Graphics/Text.hpp>
-#include <SFML/System/Vector2.hpp>
 #include <optional>
 
 #include "Model.hpp"
-#include "SFML/Graphics/Color.hpp"
-#include "SFML/Graphics/RectangleShape.hpp"
+#include <SFML/Graphics/Color.hpp>
+#include <SFML/Graphics/RectangleShape.hpp>
 
 class View {
 public:
@@ -25,15 +24,22 @@ public:
   void closeWindow();
 
 private:
-  enum class ButtonStyle { Text, Button };
-  void drawMainScreen();
+  enum class ButtonType { MenuBar, Cell };
+  enum class ButtonStatus { Released, Highlighted, Pressed };
   void drawBackground();
   void drawCells();
-  void drawTopMenu();
-  void drawCell(std::size_t row, std::size_t column);
-  bool drawMenuButton(const std::string &content, const sf::Vector2f &position,
-                      float width, ButtonStyle style);
+  void drawMenuBar();
+  void drawButton(sf::RectangleShape &button, const sf::Texture &icon);
+  void drawButton(sf::RectangleShape &button, const std::string &content);
+  void drawCellButton(std::size_t row, std::size_t column);
+  void drawMenuBarButton(const sf::Vector2f &position, Button buttonId,
+                         ButtonStatus status);
 
+  ButtonStatus computeButtonStatus(const sf::RectangleShape &button) const;
+  sf::RectangleShape makeEmptyButton(const sf::Vector2f &position,
+                                     ButtonType type);
+  sf::Color computeButtonColor(ButtonType type, ButtonStatus status) const;
+  sf::Vector2f computeButtonSize(ButtonType type) const;
   sf::Vector2f computeCellSize() const;
   sf::Vector2f computeCellPosition(std::size_t row, std::size_t column) const;
 

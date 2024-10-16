@@ -1,5 +1,5 @@
-#ifndef GAME_OF_LIFE_MODEL_HPP
-#define GAME_OF_LIFE_MODEL_HPP
+#ifndef MINESWEEPER_MODEL_HPP
+#define MINESWEEPER_MODEL_HPP
 
 #include <set>
 #include <vector>
@@ -7,7 +7,7 @@
 #include "Cell.hpp"
 
 class Model {
- public:
+public:
   enum class Status { ReadyToRun, Running, Paused, Stopped };
 
   Model(std::size_t maxWidth, std::size_t maxHeight);
@@ -21,10 +21,10 @@ class Model {
   std::size_t height() const;
   std::size_t generation() const;
   std::size_t population() const;
-  const std::set<Cell>& initialPattern() const;
-  const std::set<std::size_t>& survivalRule() const;
-  const std::set<std::size_t>& birthRule() const;
-  const Cell::Status& cellStatus(std::size_t col, std::size_t row) const;
+  const std::set<Cell> &initialPattern() const;
+  const std::set<std::size_t> &survivalRule() const;
+  const std::set<std::size_t> &birthRule() const;
+  const Cell::Status &cellStatus(std::size_t col, std::size_t row) const;
 
   void update();
   void run();
@@ -36,13 +36,13 @@ class Model {
   void increaseSize();
   void reduceSize();
   void generatePopulation(double density);
-  void insertCell(const Cell& cell);
-  void removeCell(const Cell& cell);
-  void insertPattern(const std::set<Cell>& pattern);
-  void setSurvivalRule(const std::set<std::size_t>& rule);
-  void setBirthRule(const std::set<std::size_t>& rule);
+  void insertCell(const Cell &cell);
+  void removeCell(const Cell &cell);
+  void insertPattern(const std::set<Cell> &pattern);
+  void setSurvivalRule(const std::set<std::size_t> &rule);
+  void setBirthRule(const std::set<std::size_t> &rule);
 
- private:
+private:
   void updateStatus();
   void setSize(std::size_t size);
 

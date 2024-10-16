@@ -1,39 +1,31 @@
 #include "View.hpp"
-#include "Cell.hpp"
-#include "Model.hpp"
-#include "SFML/Graphics/Color.hpp"
-#include "SFML/Graphics/Shape.hpp"
-
-#include <SFML/Graphics/RectangleShape.hpp>
 #include <SFML/Window/Mouse.hpp>
-#include <cmath>
-#include <future>
-#include <sstream>
-#include <thread>
 
 namespace {
 constexpr auto f_fontPath{"../resources/futura.ttf"};
 constexpr auto f_fontSize{18};
-constexpr auto f_minZoomLevel{1.f};
-constexpr auto f_maxZoomLevel{2.f};
+constexpr auto f_zoomMaxLevel{1.f};
+constexpr auto f_zoomMinLevel{2.f};
 constexpr auto f_zoomSensibility{0.1f};
-constexpr auto f_defaultZoomLevel{f_maxZoomLevel};
+constexpr auto f_zoomDefaultLevel{f_zoomMinLevel};
+constexpr auto f_menuBarButtonHeight{57.f};
+constexpr auto f_menuBarButtonWidth{192.f};
+constexpr auto f_menuBarButtonTextVPosition{18.f};
 constexpr auto f_buttonOutlineThickness{1.f};
-constexpr auto f_menuButtonHeight{57.f};
-constexpr auto f_menuButtonTextVPosition{18.f};
-const auto f_textColor{sf::Color::White};
-const auto f_buttonColor{sf::Color{60, 60, 60}};
-const auto f_pressedButtonColor{sf::Color{30, 30, 30}};
-const auto f_highlightedButtonColor{sf::Color{80, 80, 80}};
-const auto f_barButtonColor{sf::Color{80, 80, 80}};
-const auto f_barHighlightedButtonColor{sf::Color{100, 100, 100}};
+const auto f_fontColor{sf::Color::White};
+const auto f_cellButtonColor{sf::Color{60, 60, 60}};
+const auto f_cellPressedButtonColor{sf::Color{30, 30, 30}};
+const auto f_cellhighlightedButtonColor{sf::Color{80, 80, 80}};
+const auto f_menuBarButtonColor{sf::Color{80, 80, 80}};
+const auto f_menuBarHighlightedButtonColor{sf::Color{100, 100, 100}};
+const auto f_menuBarPressedButtonColor{sf::Color{30, 30, 30}};
 const auto f_buttonOutlineColor{sf::Color::Transparent};
 const auto f_backgroundColor{sf::Color{40, 40, 40}};
 } // namespace
 
 View::View(sf::RenderWindow &window, Model &model)
     : m_model{model}, m_window{window}, m_font{}, m_highlightedButton{},
-      m_highlightedCell{}, m_zoomLevel{f_defaultZoomLevel} {
+      m_highlightedCell{}, m_zoomLevel{f_zoomDefaultLevel} {
   m_font.loadFromFile(f_fontPath);
 }
 
@@ -48,17 +40,17 @@ void View::update() {
   m_highlightedButton.reset();
   m_highlightedCell.reset();
   drawBackground();
-  drawTopMenu();
+  drawMenuBar();
   drawCells();
   m_window.display();
 }
 
 void View::zoomIn() {
-  m_zoomLevel = std::min(m_zoomLevel + f_zoomSensibility, f_maxZoomLevel);
+  m_zoomLevel = std::min(m_zoomLevel + f_zoomSensibility, f_zoomMinLevel);
 }
 
 void View::zoomOut() {
-  m_zoomLevel = std::max(m_zoomLevel - f_zoomSensibility, f_minZoomLevel);
+  m_zoomLevel = std::max(m_zoomLevel - f_zoomSensibility, f_zoomMaxLevel);
 }
 
 void View::closeWindow() { m_window.close(); }
@@ -74,130 +66,174 @@ void View::drawBackground() {
 void View::drawCells() {
   for (decltype(m_model.height()) row = 0; row < m_model.height(); row++) {
     for (decltype(m_model.width()) col = 0; col < m_model.width(); col++) {
-      drawCell(col, row);
+      drawCellButton(col, row); // TODO: Model has simply a vector of cells
     }
   }
 }
 
-bool View::drawMenuButton(const std::string &content,
-                          const sf::Vector2f &position, float width,
-                          ButtonStyle style) {
-  auto highlighted{false};
-  sf::RectangleShape rect{{width - 2 * f_buttonOutlineThickness,
-                           f_menuButtonHeight - 2 * f_buttonOutlineThickness}};
-  rect.setPosition(position.x + f_buttonOutlineThickness,
-                   position.y + f_buttonOutlineThickness);
-  rect.setOutlineThickness(f_buttonOutlineThickness);
-  rect.setOutlineColor(f_buttonOutlineColor);
-  switch (style) {
-  case ButtonStyle::Button:
-    if (rect.getGlobalBounds().contains(
-            m_window.mapPixelToCoords(sf::Mouse::getPosition(m_window)))) {
-      highlighted = true;
-      if (sf::Mouse::isButtonPressed(sf::Mouse::Left)) {
-        rect.setFillColor(f_pressedButtonColor);
-      } else {
-        rect.setFillColor(f_barHighlightedButtonColor);
-      }
-    } else {
-      rect.setFillColor(f_barButtonColor);
-    }
-    break;
-  case ButtonStyle::Text:
-  default:
-    rect.setFillColor(f_pressedButtonColor);
-    break;
-  }
-  m_window.draw(rect);
+void View::drawMenuBar() {
+  sf::Vector2f position{0, 0};
+  drawMenuBarButton(position, Button::Quit, ButtonStatus::Released);
+  position.x += f_menuBarButtonWidth;
+  drawMenuBarButton(position, Button::Restart, ButtonStatus::Released);
+  position.x += f_menuBarButtonWidth;
+  drawMenuBarButton(position, Button::Size9x9, ButtonStatus::Released);
+  position.x += f_menuBarButtonWidth;
+  drawMenuBarButton(position, Button::Size16x16, ButtonStatus::Released);
+  position.x += f_menuBarButtonWidth;
+  drawMenuBarButton(position, Button::Size30x16, ButtonStatus::Released);
+  position.x += f_menuBarButtonWidth;
+  position.x = static_cast<float>(m_window.getSize().x) - f_menuBarButtonWidth;
+  auto textBox{makeEmptyButton(position, ButtonType::MenuBar)};
+  textBox.setFillColor(
+      computeButtonColor(ButtonType::MenuBar, ButtonStatus::Pressed));
+  drawButton(textBox, "00:00");
+  position.x -= f_menuBarButtonWidth;
+  textBox.setPosition(position);
+  drawButton(textBox, "99");
+}
+
+void View::drawButton(sf::RectangleShape &button, const sf::Texture &icon) {
+  button.setTexture(&icon);
+  m_window.draw(button);
+}
+
+void View::drawButton(sf::RectangleShape &button, const std::string &content) {
   sf::Text text{content, m_font};
   text.setCharacterSize(f_fontSize);
-  text.setPosition(position.x + (width - text.getLocalBounds().width) * .5f,
-                   position.y + f_menuButtonTextVPosition);
-  text.setFillColor(f_textColor);
+  auto buttonPosition{button.getPosition()};
+  auto buttonSize{button.getSize()};
+  text.setPosition(buttonPosition.x +
+                       (buttonSize.x - text.getLocalBounds().width) * .5f,
+                   buttonPosition.y + f_menuBarButtonTextVPosition);
+  text.setFillColor(f_fontColor);
+  m_window.draw(button);
   m_window.draw(text);
-  return highlighted;
 }
 
-void View::drawCell(std::size_t col, std::size_t row) {
-  auto rectSize{computeCellSize()};
-  auto rect{sf::RectangleShape({rectSize.x - 2 * f_buttonOutlineThickness,
-                                rectSize.y - 2 * f_buttonOutlineThickness})};
-  auto rectPosition{computeCellPosition(col, row)};
-  rect.setPosition(rectPosition.x + f_buttonOutlineThickness,
-                   rectPosition.y + f_buttonOutlineThickness);
-  rect.setOutlineColor(f_buttonOutlineColor);
-  rect.setOutlineThickness(f_buttonOutlineThickness);
-  switch (m_model.cellStatus(col, row)) {
-  case Cell::Status::Hidden: {
-    if (rect.getGlobalBounds().contains(
-            m_window.mapPixelToCoords(sf::Mouse::getPosition(m_window)))) {
-      if (sf::Mouse::isButtonPressed(sf::Mouse::Left)) {
-        m_highlightedCell = {col, row};
-        rect.setFillColor(f_pressedButtonColor);
-        break;
-      }
-      rect.setFillColor(f_highlightedButtonColor);
-      break;
-    }
-    rect.setFillColor(f_buttonColor);
-    break;
+void View::drawCellButton(std::size_t col, std::size_t row) {
+  auto position{computeCellPosition(col, row)};
+  auto button{makeEmptyButton(position, ButtonType::Cell)};
+  auto buttonStatus{computeButtonStatus(button)};
+  if (buttonStatus != ButtonStatus::Released) {
+    m_highlightedCell = {col, row};
   }
+  switch (m_model.cellStatus(col, row)) {
+    // TODO: icons
+  case Cell::Status::Hidden:
+    break;
   case Cell::Status::Flagged:
     break;
   case Cell::Status::Suspected:
     break;
   case Cell::Status::Revealed:
+    buttonStatus = ButtonStatus::Pressed;
     break;
   default:
     break;
   }
-  m_window.draw(rect);
+  button.setFillColor(computeButtonColor(ButtonType::Cell, buttonStatus));
+  drawButton(button, ""); // TODO: draw with icon instead
 }
 
-void View::drawTopMenu() {
-  sf::Vector2f position{0, 0};
-  auto windowSize{m_window.getSize()};
-  auto maxCellSideLength{static_cast<float>(windowSize.x) /
-                         static_cast<float>(m_model.width())};
-  if (drawMenuButton("Quit [Esc]", position, maxCellSideLength * 3,
-                     ButtonStyle::Button)) {
-    m_highlightedButton = Button::Quit;
+void View::drawMenuBarButton(const sf::Vector2f &position, Button buttonId,
+                             ButtonStatus status) {
+  auto button{makeEmptyButton(position, ButtonType::MenuBar)};
+  if (status != ButtonStatus::Pressed) {
+    status = computeButtonStatus(button);
+    if (status != ButtonStatus::Released) {
+      m_highlightedButton = buttonId;
+    }
   }
-  position.x += maxCellSideLength * 3;
-  if (drawMenuButton("Restart", position, maxCellSideLength * 3,
-                     ButtonStyle::Button)) {
-    m_highlightedButton = Button::Restart;
+  button.setFillColor(computeButtonColor(ButtonType::MenuBar, status));
+  switch (buttonId) {
+  case Button::Quit:
+    drawButton(button, "Quit");
+    return;
+  case Button::Restart:
+    drawButton(button, "Restart");
+    break;
+  case Button::Size9x9:
+    drawButton(button, "9x9");
+    break;
+  case Button::Size16x16:
+    drawButton(button, "16x16");
+    break;
+  case Button::Size30x16:
+    drawButton(button, "30x16");
+    break;
   }
-  position.x += maxCellSideLength * 3;
-  if (drawMenuButton("9 x 9", position, maxCellSideLength * 3,
-                     ButtonStyle::Button)) {
-    m_highlightedButton = Button::Size9x9;
+}
+
+View::ButtonStatus
+View::computeButtonStatus(const sf::RectangleShape &button) const {
+  auto isMouseHoveringButton{button.getGlobalBounds().contains(
+      m_window.mapPixelToCoords(sf::Mouse::getPosition(m_window)))};
+  auto isMousePressed{sf::Mouse::isButtonPressed(sf::Mouse::Left)};
+  if (isMouseHoveringButton) {
+    if (isMousePressed) {
+      return ButtonStatus::Pressed;
+    }
+    return ButtonStatus::Highlighted;
   }
-  position.x += maxCellSideLength * 3;
-  if (drawMenuButton("16 x 16", position, maxCellSideLength * 3,
-                     ButtonStyle::Button)) {
-    m_highlightedButton = Button::Size16x16;
+  return ButtonStatus::Released;
+};
+
+sf::RectangleShape View::makeEmptyButton(const sf::Vector2f &position,
+                                         ButtonType type) {
+  auto size{computeButtonSize(type)};
+  sf::RectangleShape rect{{size.x - 2 * f_buttonOutlineThickness,
+                           size.y - 2 * f_buttonOutlineThickness}};
+  rect.setPosition(position.x + f_buttonOutlineThickness,
+                   position.y + f_buttonOutlineThickness);
+  rect.setOutlineThickness(f_buttonOutlineThickness);
+  rect.setOutlineColor(f_buttonOutlineColor);
+  return rect;
+}
+
+sf::Color View::computeButtonColor(ButtonType type, ButtonStatus status) const {
+  switch (type) {
+  case ButtonType::MenuBar:
+    switch (status) {
+    case ButtonStatus::Pressed:
+      return f_menuBarPressedButtonColor;
+    case ButtonStatus::Highlighted:
+      return f_menuBarHighlightedButtonColor;
+    default:
+    case ButtonStatus::Released:
+      return f_menuBarButtonColor;
+    }
+  default:
+  case ButtonType::Cell:
+    switch (status) {
+    case ButtonStatus::Pressed:
+      return f_cellPressedButtonColor;
+    case ButtonStatus::Highlighted:
+      return f_cellhighlightedButtonColor;
+    default:
+    case ButtonStatus::Released:
+      return f_cellButtonColor;
+    }
   }
-  position.x += maxCellSideLength * 3;
-  if (drawMenuButton("30 x 16", position, maxCellSideLength * 3,
-                     ButtonStyle::Text)) {
-    m_highlightedButton = Button::Size30x16;
+  return {};
+}
+
+sf::Vector2f View::computeButtonSize(ButtonType type) const {
+  switch (type) {
+  case ButtonType::MenuBar:
+    return {f_menuBarButtonWidth, f_menuBarButtonHeight};
+  default:
+  case ButtonType::Cell:
+    return computeCellSize();
   }
-  position.x = static_cast<float>(windowSize.x) - 2 * maxCellSideLength * 3;
-  if (drawMenuButton("00:00", position, maxCellSideLength * 3,
-                     ButtonStyle::Text)) {
-  }
-  position.x += maxCellSideLength * 3;
-  if (drawMenuButton("99", position, maxCellSideLength * 3,
-                     ButtonStyle::Text)) {
-  }
+  return {};
 }
 
 sf::Vector2f View::computeCellSize() const {
   auto windowSize{m_window.getSize()};
   auto maxSideLength{static_cast<float>(windowSize.x) /
                      static_cast<float>(m_model.width())};
-  auto sideLength{maxSideLength * (m_zoomLevel / f_maxZoomLevel)};
+  auto sideLength{maxSideLength * (m_zoomLevel / f_zoomMinLevel)};
   return {sideLength, sideLength};
 }
 
@@ -207,7 +243,7 @@ sf::Vector2f View::computeCellPosition(std::size_t col, std::size_t row) const {
   auto gridWidth{cellSize.x * static_cast<float>(m_model.width())};
   auto gridHeight{cellSize.y * static_cast<float>(m_model.height())};
   auto topLeftCellHPos{(static_cast<float>(windowSize.x) - gridWidth) * 0.5f};
-  auto menuBarSize{f_menuButtonHeight};
+  auto menuBarSize{f_menuBarButtonHeight};
   auto topLeftCellVPos{
       (static_cast<float>(windowSize.y) - menuBarSize - gridHeight) * 0.5f +
       menuBarSize};

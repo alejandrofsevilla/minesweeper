@@ -1,5 +1,5 @@
-#ifndef GAME_OF_LIFE_CELL_HPP
-#define GAME_OF_LIFE_CELL_HPP
+#ifndef MINESWEEPER_CELL_HPP
+#define MINESWEEPER_CELL_HPP
 
 struct Cell {
   enum class Type { Empty, Mine };

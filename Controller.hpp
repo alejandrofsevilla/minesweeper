@@ -1,5 +1,5 @@
-#ifndef GAME_OF_LIFE_CONTROLLER_HPP
-#define GAME_OF_LIFE_CONTROLLER_HPP
+#ifndef MINESWEEPER_CONTROLLER_HPP
+#define MINESWEEPER_CONTROLLER_HPP
 
 #include <SFML/System/Vector2.hpp>
 #include <SFML/Window/Event.hpp>
