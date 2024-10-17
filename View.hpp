@@ -33,10 +33,12 @@ private:
   void drawCellButton(std::size_t row, std::size_t column);
   void drawMenuBarButton(const sf::Vector2f &position, Button buttonId,
                          ButtonStatus status);
-  void fillButton(sf::RectangleShape &button, const sf::Texture &icon);
-  void fillButton(sf::RectangleShape &button, const std::string &content);
+  void fillAndDrawButton(sf::RectangleShape &button, const sf::Texture &icon);
+  void fillAndDrawButton(sf::RectangleShape &button,
+                         const std::string &content);
 
   sf::RectangleShape makeButton(const sf::Vector2f &position, ButtonType type);
+  float computeButtonOutlineThickness(ButtonType type) const;
   sf::Color computeButtonColor(ButtonType type, ButtonStatus status) const;
   sf::Vector2f computeButtonSize(ButtonType type) const;
   sf::Vector2f computeCellSize() const;

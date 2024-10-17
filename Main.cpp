@@ -1,6 +1,3 @@
-#include <future>
-#include <thread>
-
 #include "Controller.hpp"
 #include "Model.hpp"
 #include "View.hpp"
@@ -17,24 +14,15 @@ int main() {
   sf::RenderWindow window{sf::VideoMode::getDesktopMode(), f_windowTitle,
                           f_windowStyle};
   window.setVerticalSyncEnabled(true);
-  Model model{f_modelMaxWidth, f_modelMaxHeight};
+  Model model;
   View view{window, model};
   Controller controller{view, model};
-  std::future<void> scheduler;
-  auto isModelScheduled{true};
   while (window.isOpen()) {
     sf::Event event;
     while (window.pollEvent(event)) {
       controller.onEvent(event);
     }
-    if (model.status() == Model::Status::Running && isModelScheduled) {
-      scheduler = std::async([&isModelScheduled, &model]() {
-        isModelScheduled = false;
-        std::this_thread::sleep_for(f_defaultModelUpdatePeriod / model.speed());
-        isModelScheduled = true;
-      });
-      model.update();
-    }
+    model.update();
     view.update();
   }
   return 0;

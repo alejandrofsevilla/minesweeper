@@ -1,71 +1,47 @@
 #ifndef MINESWEEPER_MODEL_HPP
 #define MINESWEEPER_MODEL_HPP
 
-#include <set>
+#include <chrono>
 #include <vector>
 
 #include "Cell.hpp"
 
 class Model {
 public:
-  enum class Status { ReadyToRun, Running, Paused, Stopped };
+  enum class Status { Ready, Started, Running, Stopped, Finished };
+  enum class Size { Size9x9, Size16x16, Size30x16 };
 
-  Model(std::size_t maxWidth, std::size_t maxHeight);
+  Model();
 
+  Size size() const;
   Status status() const;
-  std::size_t speed() const;
-  std::size_t maxSpeed() const;
-  std::size_t size() const;
-  std::size_t maxSize() const;
-  std::size_t width() const;
-  std::size_t height() const;
-  std::size_t generation() const;
-  std::size_t population() const;
-  const std::set<Cell> &initialPattern() const;
-  const std::set<std::size_t> &survivalRule() const;
-  const std::set<std::size_t> &birthRule() const;
-  const Cell::Status &cellStatus(std::size_t col, std::size_t row) const;
+  size_t width() const;
+  size_t height() const;
+  size_t markedMinesCount() const;
+  size_t timeInSeconds() const;
+
+  const std::vector<std::vector<Cell>> &cells() const;
 
   void update();
-  void run();
-  void pause();
-  void clear();
-  void reset();
-  void speedUp();
-  void slowDown();
-  void increaseSize();
-  void reduceSize();
-  void generatePopulation(double density);
-  void insertCell(const Cell &cell);
-  void removeCell(const Cell &cell);
-  void insertPattern(const std::set<Cell> &pattern);
-  void setSurvivalRule(const std::set<std::size_t> &rule);
-  void setBirthRule(const std::set<std::size_t> &rule);
+  void restart();
+  void setSize(Size size);
+  void markMine(std::size_t col, std::size_t row);
+  void markSuspect(std::size_t col, std::size_t row);
+  void reveal(std::size_t col, std::size_t row);
 
 private:
-  void updateStatus();
-  void setSize(std::size_t size);
-
-  std::size_t updateSection(std::size_t minCol, std::size_t maxCol);
-
-  std::size_t calculateWidth();
-  std::size_t calculateHeight();
-
-  const std::size_t m_maxWidth;
-  const std::size_t m_maxHeight;
+  void startTime();
+  void updateTime();
+  void generateCells();
+  void generateMines();
+  void revealAllMines();
 
   Status m_status;
-  std::size_t m_size;
-  std::size_t m_width;
-  std::size_t m_height;
-  std::size_t m_speed;
-  std::size_t m_generation;
-  std::size_t m_population;
-  std::set<Cell> m_initialPattern;
-  std::set<std::size_t> m_survivalRule;
-  std::set<std::size_t> m_birthRule;
-  std::vector<std::vector<Cell::Status>> m_cellStatus;
-  std::vector<std::vector<Cell::Status>> m_updatedCellStatus;
+  Size m_size;
+  size_t m_timeInSeconds;
+  size_t m_markedMinesCount;
+  std::vector<std::vector<Cell>> m_cells;
+  std::chrono::system_clock::time_point m_startTime;
 };
 
 #endif

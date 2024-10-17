@@ -13,8 +13,9 @@ struct Cell {
     /*TODO: remove -> */ Empty
   };
 
-  std::size_t col{0};
-  std::size_t row{0};
+  size_t col{0};
+  size_t row{0};
+  size_t neighbourMinesCount{0};
   Type type{Type::Empty};
   Status status{Status::Hidden};
 

@@ -10,17 +10,18 @@ constexpr auto f_zoomSensibility{0.1f};
 constexpr auto f_zoomDefaultLevel{f_zoomMinLevel};
 constexpr auto f_menuBarButtonHeight{57.f};
 constexpr auto f_menuBarButtonWidth{192.f};
-constexpr auto f_menuBarButtonTextVPosition{18.f};
-constexpr auto f_buttonOutlineThickness{1.f};
+constexpr auto f_menuBarButtonTextVPosition{16.f};
+constexpr auto f_menuBarButtonOutlineThickness{2.f};
+constexpr auto f_cellButtonOutlineThickness{1.f};
 const auto f_fontColor{sf::Color::White};
-const auto f_cellButtonColor{sf::Color{60, 60, 60}};
-const auto f_cellPressedButtonColor{sf::Color{30, 30, 30}};
-const auto f_cellhighlightedButtonColor{sf::Color{80, 80, 80}};
-const auto f_menuBarButtonColor{sf::Color{80, 80, 80}};
-const auto f_menuBarHighlightedButtonColor{sf::Color{100, 100, 100}};
+const auto f_cellButtonColor{sf::Color{70, 70, 70}};
+const auto f_cellPressedButtonColor{sf::Color{40, 40, 40}};
+const auto f_cellhighlightedButtonColor{sf::Color{90, 90, 90}};
+const auto f_menuBarButtonColor{sf::Color{90, 90, 90}};
+const auto f_menuBarHighlightedButtonColor{sf::Color{110, 110, 110}};
 const auto f_menuBarPressedButtonColor{sf::Color{30, 30, 30}};
 const auto f_buttonOutlineColor{sf::Color::Transparent};
-const auto f_backgroundColor{sf::Color{40, 40, 40}};
+const auto f_backgroundColor{sf::Color{50, 50, 50}};
 } // namespace
 
 View::View(sf::RenderWindow &window, Model &model)
@@ -77,20 +78,31 @@ void View::drawMenuBar() {
   position.x += f_menuBarButtonWidth;
   drawMenuBarButton(position, Button::Restart, ButtonStatus::Released);
   position.x += f_menuBarButtonWidth;
-  drawMenuBarButton(position, Button::Size9x9, ButtonStatus::Released);
+  auto modelSize{m_model.size()};
+  drawMenuBarButton(position, Button::Size9x9,
+                    modelSize == Model::Size::Size9x9 ? ButtonStatus::Pressed
+                                                      : ButtonStatus::Released);
   position.x += f_menuBarButtonWidth;
-  drawMenuBarButton(position, Button::Size16x16, ButtonStatus::Released);
+  drawMenuBarButton(position, Button::Size16x16,
+                    modelSize == Model::Size::Size9x9 ? ButtonStatus::Pressed
+                                                      : ButtonStatus::Released);
   position.x += f_menuBarButtonWidth;
-  drawMenuBarButton(position, Button::Size30x16, ButtonStatus::Released);
+  drawMenuBarButton(position, Button::Size30x16,
+                    modelSize == Model::Size::Size30x16
+                        ? ButtonStatus::Pressed
+                        : ButtonStatus::Released);
   position.x += f_menuBarButtonWidth;
   position.x = static_cast<float>(m_window.getSize().x) - f_menuBarButtonWidth;
-  auto textBox{makeButton(position, ButtonType::MenuBar)};
-  textBox.setFillColor(
+  auto timeDisplay{makeButton(position, ButtonType::MenuBar)};
+  timeDisplay.setFillColor(
       computeButtonColor(ButtonType::MenuBar, ButtonStatus::Pressed));
-  drawButton(textBox, "00:00");
+  fillAndDrawButton(timeDisplay, "00:00");
+
   position.x -= f_menuBarButtonWidth;
-  textBox.setPosition(position);
-  drawButton(textBox, "99");
+  auto minesDisplay{makeButton(position, ButtonType::MenuBar)};
+  minesDisplay.setFillColor(
+      computeButtonColor(ButtonType::MenuBar, ButtonStatus::Pressed));
+  fillAndDrawButton(minesDisplay, "99");
 }
 
 void View::drawCellButton(std::size_t col, std::size_t row) {
@@ -100,7 +112,7 @@ void View::drawCellButton(std::size_t col, std::size_t row) {
   if (buttonStatus != ButtonStatus::Released) {
     m_highlightedCell = {col, row};
   }
-  switch (m_model.cellStatus(col, row)) {
+  switch (m_model.cells()[col][row].status) {
     // TODO: icons
   case Cell::Status::Hidden:
     break;
@@ -115,7 +127,7 @@ void View::drawCellButton(std::size_t col, std::size_t row) {
     break;
   }
   button.setFillColor(computeButtonColor(ButtonType::Cell, buttonStatus));
-  fillButton(button, ""); // TODO: draw with icon instead
+  fillAndDrawButton(button, ""); // TODO: draw with icon instead
   m_window.draw(button);
 }
 
@@ -131,29 +143,31 @@ void View::drawMenuBarButton(const sf::Vector2f &position, Button buttonId,
   button.setFillColor(computeButtonColor(ButtonType::MenuBar, status));
   switch (buttonId) {
   case Button::Quit:
-    drawButton(button, "Quit");
-    return;
+    fillAndDrawButton(button, "Quit");
+    break;
   case Button::Restart:
-    drawButton(button, "Restart");
+    fillAndDrawButton(button, "Restart");
     break;
   case Button::Size9x9:
-    drawButton(button, "9x9");
+    fillAndDrawButton(button, "9x9");
     break;
   case Button::Size16x16:
-    drawButton(button, "16x16");
+    fillAndDrawButton(button, "16x16");
     break;
   case Button::Size30x16:
-    drawButton(button, "30x16");
+    fillAndDrawButton(button, "30x16");
     break;
   }
 }
 
-void View::fillButton(sf::RectangleShape &button, const sf::Texture &icon) {
+void View::fillAndDrawButton(sf::RectangleShape &button,
+                             const sf::Texture &icon) {
   button.setTexture(&icon);
   m_window.draw(button);
 }
 
-void View::fillButton(sf::RectangleShape &button, const std::string &content) {
+void View::fillAndDrawButton(sf::RectangleShape &button,
+                             const std::string &content) {
   sf::Text text{content, m_font};
   text.setCharacterSize(f_fontSize);
   auto buttonPosition{button.getPosition()};
@@ -169,13 +183,24 @@ void View::fillButton(sf::RectangleShape &button, const std::string &content) {
 sf::RectangleShape View::makeButton(const sf::Vector2f &position,
                                     ButtonType type) {
   auto size{computeButtonSize(type)};
-  sf::RectangleShape rect{{size.x - 2 * f_buttonOutlineThickness,
-                           size.y - 2 * f_buttonOutlineThickness}};
-  rect.setPosition(position.x + f_buttonOutlineThickness,
-                   position.y + f_buttonOutlineThickness);
-  rect.setOutlineThickness(f_buttonOutlineThickness);
+  auto outlineThickness{computeButtonOutlineThickness(type)};
+  sf::RectangleShape rect{
+      {size.x - 2 * outlineThickness, size.y - 2 * outlineThickness}};
+  rect.setPosition(position.x + outlineThickness,
+                   position.y + outlineThickness);
+  rect.setOutlineThickness(f_cellButtonOutlineThickness);
   rect.setOutlineColor(f_buttonOutlineColor);
   return rect;
+}
+
+float View::computeButtonOutlineThickness(ButtonType type) const {
+  switch (type) {
+  case ButtonType::MenuBar:
+    return f_menuBarButtonOutlineThickness;
+  default:
+  case ButtonType::Cell:
+    return f_cellButtonOutlineThickness;
+  }
 }
 
 sf::Color View::computeButtonColor(ButtonType type, ButtonStatus status) const {
