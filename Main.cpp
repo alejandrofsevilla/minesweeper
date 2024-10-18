@@ -8,11 +8,13 @@ constexpr auto f_windowStyle{sf::Style::Fullscreen};
 constexpr auto f_modelMaxWidth{30};
 constexpr auto f_modelMaxHeight{16};
 constexpr auto f_defaultModelUpdatePeriod{std::chrono::milliseconds{300}};
+constexpr auto f_antialiasing{8};
 } // namespace
 
 int main() {
   sf::RenderWindow window{sf::VideoMode::getDesktopMode(), f_windowTitle,
-                          f_windowStyle};
+                          f_windowStyle,
+                          sf::ContextSettings{0, 0, f_antialiasing}};
   window.setVerticalSyncEnabled(true);
   Model model;
   View view{window, model};

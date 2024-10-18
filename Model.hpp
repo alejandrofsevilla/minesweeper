@@ -25,8 +25,7 @@ public:
   void update();
   void restart();
   void setSize(Size size);
-  void markMine(std::size_t col, std::size_t row);
-  void markSuspect(std::size_t col, std::size_t row);
+  void cycleCellStatus(std::size_t col, std::size_t row);
   void reveal(std::size_t col, std::size_t row);
 
 private:
@@ -35,6 +34,7 @@ private:
   void generateCells();
   void generateMines();
   void revealAllMines();
+  void revealNeighbours(std::size_t col, std::size_t row);
 
   Status m_status;
   Size m_size;

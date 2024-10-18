@@ -38,8 +38,8 @@ inline std::pair<size_t, size_t> sizeAsPair(Model::Size size) {
 } // namespace
 
 Model::Model()
-    : m_status{Status::Ready}, m_size{Size::Size30x16}, m_cells{},
-      m_startTime{} {}
+    : m_status{Status::Ready}, m_size{Size::Size30x16}, m_timeInSeconds{0},
+      m_markedMinesCount{0}, m_cells{}, m_startTime{} {}
 
 Model::Size Model::size() const { return m_size; }
 
@@ -79,35 +79,39 @@ void Model::update() {
   }
 }
 
-void Model::markMine(std::size_t col, std::size_t row) {
-  m_cells[col][row].status = Cell::Status::Flagged;
-}
-
-void Model::markSuspect(std::size_t col, std::size_t row) {
-  m_cells[col][row].status = Cell::Status::Suspected;
+void Model::cycleCellStatus(std::size_t col, std::size_t row) {
+  auto &cell{m_cells[col][row]};
+  switch (cell.status) {
+  case Cell::Status::Hidden:
+    cell.status = Cell::Status::MarkedAsMine;
+    m_markedMinesCount++;
+    return;
+  case Cell::Status::MarkedAsMine:
+    m_markedMinesCount--;
+    cell.status = Cell::Status::MarkedAsSuspect;
+    return;
+  case Cell::Status::MarkedAsSuspect:
+    cell.status = Cell::Status::Hidden;
+    return;
+  default:
+    return;
+  }
 }
 
 void Model::reveal(std::size_t col, std::size_t row) {
   auto &cell = m_cells[col][row];
+  if (cell.status == Cell::Status::Revealed) {
+    return;
+  }
   cell.status = Cell::Status::Revealed;
   if (cell.type == Cell::Type::Mine) {
     m_status = Status::Stopped;
     return;
   }
-  auto neighbourMinesCount{cell.neighbourMinesCount};
-  if (neighbourMinesCount == 0) {
-    auto gridSize{sizeAsPair(m_size)};
-    auto width{gridSize.first};
-    auto height{gridSize.second};
-    for (size_t i = col - 1; i <= col + 1; i++) {
-      for (size_t j = row - 1; j <= row + 1; j++) {
-        if ((i > 0 && i < width) && (j > 0 && j < height)) {
-          reveal(i, j);
-        }
-      }
-    }
+  revealNeighbours(col, row);
+  if (m_status == Status::Ready) {
+    m_status = Status::Started;
   }
-  m_status = Status::Started;
 }
 
 void Model::setSize(Size size) {
@@ -120,6 +124,8 @@ void Model::setSize(Size size) {
 
 void Model::restart() {
   m_cells.clear();
+  m_markedMinesCount = 0;
+  m_timeInSeconds = 0;
   generateCells();
   generateMines();
   m_status = Status::Ready;
@@ -140,7 +146,7 @@ void Model::generateCells() {
     m_cells.push_back({});
     for (size_t row = 0; row < height; row++) {
       m_cells[col].push_back(
-          {col, row, 0, Cell::Type::Empty, Cell::Status::Empty});
+          {col, row, 0, Cell::Type::Empty, Cell::Status::Hidden});
     }
   }
 }
@@ -170,6 +176,23 @@ void Model::revealAllMines() {
     for (auto &cell : col) {
       if (cell.type == Cell::Type::Mine) {
         cell.status = Cell::Status::Revealed;
+      }
+    }
+  }
+}
+
+void Model::revealNeighbours(std::size_t col, std::size_t row) {
+  auto &cell = m_cells[col][row];
+  auto neighbourMinesCount{cell.neighbourMinesCount};
+  if (neighbourMinesCount == 0) {
+    auto gridSize{sizeAsPair(m_size)};
+    auto width{gridSize.first};
+    auto height{gridSize.second};
+    for (size_t i = col - 1; i <= col + 1; i++) {
+      for (size_t j = row - 1; j <= row + 1; j++) {
+        if ((i > 0 && i < width) && (j > 0 && j < height)) {
+          reveal(i, j);
+        }
       }
     }
   }

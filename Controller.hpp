@@ -14,16 +14,16 @@ public:
   void onEvent(const sf::Event &event);
 
 private:
+  void onMouseLeftButtonPressed();
+  void onMouseLeftButtonPressedOnBarMenu();
+  void onMouseLeftButtonPressedOnCell();
+  void onMouseRightButtonPressed();
   void onMouseButtonPressed(const sf::Event::MouseButtonEvent &event);
   void onMouseWheelScrolled(const sf::Event::MouseWheelScrollEvent &event);
-  void onMouseMoved(const sf::Event::MouseMoveEvent &event);
   void onKeyPressed(const sf::Event::KeyEvent &event);
-  void onMouseButtonPressedOnCell(const Cell &cell);
 
   View &m_view;
   Model &m_model;
-  sf::Vector2i m_mouseReferencePosition;
-  bool m_isSaveFileMenuReady;
 };
 
 #endif
