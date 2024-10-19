@@ -27,14 +27,14 @@ constexpr auto f_zoomMinLevel{2.f};
 constexpr auto f_zoomSensibility{0.1f};
 constexpr auto f_defaultCellSideLen{64.f};
 constexpr auto f_zoomDefaultLevel{f_zoomMinLevel};
-constexpr auto f_menuFrameHeight{59.f};
-constexpr auto f_menuButtonHeight{57.f};
+constexpr auto f_menuFrameHeight{64.f};
+constexpr auto f_menuButtonHeight{64.f};
 constexpr auto f_menuButtonWidth{192.f};
 constexpr auto f_menuButtonTextVPosition{14.f};
 constexpr auto f_menuButtonOutlineThickness{2.f};
 constexpr auto f_menuFrameOutlineThickness{2.f};
 constexpr auto f_cellButtonOutlineThickness{1.f};
-constexpr auto f_iconSize{.75f};
+constexpr auto f_iconSize{.85f};
 const auto f_fontColor{sf::Color::White};
 const auto f_cellButtonColor{sf::Color{120, 128, 136}};
 const auto f_cellPressedButtonColor{sf::Color{40, 40, 40}};
@@ -201,13 +201,12 @@ void View::drawIconOnButton(ButtonArea &area, ButtonIcon icon) {
     return;
   }
   auto mask = area;
-  auto iconSize{static_cast<sf::Vector2f>(m_icons.at(icon).getSize()) *
-                f_iconSize};
   auto areaSize{area.getSize()};
-  mask.setSize({iconSize.x, iconSize.y});
+  auto maskSize{areaSize * f_iconSize};
+  mask.setSize(maskSize);
   auto pos{mask.getPosition()};
-  mask.setPosition(pos.x + (areaSize.x - iconSize.x) * .5f,
-                   pos.y + (areaSize.y - iconSize.y) * .5f);
+  mask.setPosition(pos.x + (areaSize.x - maskSize.x) * .5f,
+                   pos.y + (areaSize.y - maskSize.y) * .5f);
   mask.setFillColor(sf::Color::White);
   mask.setTexture(&m_icons.at(icon));
   m_window.draw(mask);
