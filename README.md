@@ -5,7 +5,7 @@ Implementation of Minesweeper game
 
 ## Requirements
 * C++17 compiler.
-* CMake 3.22.0.
+* CMake
 
 ## Build and Install
 - Clone the repository to your local machine.
