@@ -190,15 +190,7 @@ void Model::generateMines() {
   }
   for (auto col = 0; col < width; col++) {
     for (auto row = 0; row < height; row++) {
-      for (auto j = col - 1; j <= col + 1; j++) {
-        for (auto z = row - 1; z <= row + 1; z++) {
-          if ((j >= 0 && j < width) && (z >= 0 && z < height)) {
-            if (m_cells[j][z].type == Cell::Type::Mine) {
-              m_cells[col][row].neighbourMinesCount++;
-            }
-          }
-        }
-      }
+      m_cells[col][row].neighbourMinesCount = countNeighbourMines(col, row);
     }
   }
 }
@@ -211,4 +203,21 @@ void Model::revealAllMines() {
       }
     }
   }
+}
+
+int Model::countNeighbourMines(int col, int row) {
+  auto neighbourMinesCount{0};
+  auto gridSize{sizeAsPair(m_size)};
+  auto width{gridSize.first};
+  auto height{gridSize.second};
+  for (auto j = col - 1; j <= col + 1; j++) {
+    for (auto z = row - 1; z <= row + 1; z++) {
+      if ((j >= 0 && j < width) && (z >= 0 && z < height)) {
+        if (m_cells[j][z].type == Cell::Type::Mine) {
+          neighbourMinesCount++;
+        }
+      }
+    }
+  }
+  return neighbourMinesCount;
 }

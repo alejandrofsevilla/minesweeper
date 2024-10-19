@@ -35,6 +35,7 @@ private:
   void generateCells();
   void generateMines();
   void revealAllMines();
+  int countNeighbourMines(int col, int row);
 
   Status m_status;
   Size m_size;
