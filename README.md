@@ -10,7 +10,7 @@ Implementation of Minesweeper game
 ## Build and Install
 - Clone the repository to your local machine.
    ```terminal
-   git clone https://github.com/alejandrofsevilla/game-of-life.git
+   git clone https://github.com/alejandrofsevilla/minesweeper.git
    cd game-of-life
    ```
 - Build.
