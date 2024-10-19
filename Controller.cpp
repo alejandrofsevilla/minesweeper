@@ -1,12 +1,5 @@
 #include "Controller.hpp"
 #include "Model.hpp"
-#include "SFML/Window/Mouse.hpp"
-
-#include <cwctype>
-
-namespace {
-constexpr auto f_populationGenerationRate{.05};
-} // namespace
 
 Controller::Controller(View &view, Model &model)
     : m_view{view}, m_model{model} {}
@@ -40,7 +33,7 @@ void Controller::onMouseWheelScrolled(
 }
 
 void Controller ::onMouseLeftButtonPressedOnBarMenu() {
-  auto highlightedButton{m_view.highlightedButton()};
+  auto highlightedButton{m_view.buttonUnderMouse()};
   switch (highlightedButton) {
   case View::Button::Quit:
     m_view.closeWindow();
@@ -63,37 +56,51 @@ void Controller ::onMouseLeftButtonPressedOnBarMenu() {
 }
 
 void Controller ::onMouseLeftButtonPressedOnCell() {
-  auto pos{m_view.highlightedCellPos()};
+  auto pos{m_view.cellUnderMouse()};
   if (m_model.status() == Model::Status::Finished) {
-    return;
-  } else if (m_model.cells()[pos->first][pos->second].status !=
-             Cell::Status::Hidden) { // TODO: This type of logic is in the Model
     return;
   }
   m_model.reveal(pos->first, pos->second);
   return;
 }
 
-void Controller::onMouseRightButtonPressed() {
-  auto pos{m_view.highlightedCellPos()};
-  if (!pos || m_model.status() == Model::Status::Finished) {
+void Controller::onMouseRightButtonPressedOnCell() {
+  if (m_model.status() == Model::Status::Finished) {
     return;
   }
+  auto pos{m_view.cellUnderMouse()};
   m_model.cycleCellStatus(pos->first, pos->second);
+}
+
+void Controller::onMouseBothButtonsPressedOnCell() {
+  if (m_model.status() == Model::Status::Finished) {
+    return;
+  }
+  auto pos{m_view.cellUnderMouse()};
+  m_model.tryRevealNeighbours(pos->first, pos->second);
 }
 
 void Controller::onMouseButtonPressed(
     const sf::Event::MouseButtonEvent &event) {
+  auto cellIsHighlighted{m_view.cellUnderMouse().has_value()};
+  auto bothButtonsPressed{sf::Mouse::isButtonPressed(sf::Mouse::Left) &&
+                          sf::Mouse::isButtonPressed(sf::Mouse::Right)};
+  if (cellIsHighlighted && bothButtonsPressed) {
+    return onMouseBothButtonsPressedOnCell();
+  }
+  auto buttonIsHighlighted{m_view.buttonUnderMouse() != View::Button::None};
   switch (event.button) {
   case sf::Mouse::Button::Left:
-    if (m_view.highlightedButton() != View::Button::None) {
+    if (buttonIsHighlighted) {
       return onMouseLeftButtonPressedOnBarMenu();
-    } else if (m_view.highlightedCellPos()) {
+    } else if (cellIsHighlighted) {
       return onMouseLeftButtonPressedOnCell();
     }
     return;
   case sf::Mouse::Button::Right:
-    return onMouseRightButtonPressed();
+    if (cellIsHighlighted) {
+      return onMouseRightButtonPressedOnCell();
+    }
   default:
     return;
   }

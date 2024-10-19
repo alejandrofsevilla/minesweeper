@@ -6,7 +6,6 @@
 #include <optional>
 
 #include "Model.hpp"
-#include "SFML/Graphics/Texture.hpp"
 #include <SFML/Graphics/Color.hpp>
 #include <SFML/Graphics/RectangleShape.hpp>
 
@@ -16,8 +15,8 @@ public:
 
   View(sf::RenderWindow &window, Model &model);
 
-  Button highlightedButton() const;
-  std::optional<std::pair<size_t, size_t>> highlightedCellPos() const;
+  Button buttonUnderMouse() const;
+  std::optional<std::pair<int, int>> cellUnderMouse() const;
 
   void update();
   void zoomIn();
@@ -30,6 +29,8 @@ private:
   enum class ButtonType { Menu, Cell };
   enum class ButtonStatus { Released, Highlighted, Pressed };
   enum class ButtonIcon {
+    Cell,
+    Button,
     One,
     Two,
     Three,
@@ -41,6 +42,8 @@ private:
     Mine,
     Flag,
     QuestionMark,
+    Happy,
+    Sad,
     None
   };
 
@@ -48,7 +51,7 @@ private:
   void drawBackground();
   void drawCells();
   void drawMenu();
-  void drawCellButton(size_t col, size_t row);
+  void drawCellButton(int col, int row);
   void drawMenuButton(const sf::Vector2f &pos, Button button);
   void drawMenuDisplay(const sf::Vector2f &pos, const std::string &content);
   void drawIconOnButton(ButtonArea &button, ButtonIcon icon);
@@ -59,7 +62,7 @@ private:
   sf::Color buttonColor(ButtonType type, ButtonStatus status) const;
   sf::Vector2f buttonSize(ButtonType type) const;
   sf::Vector2f cellButtonSize() const;
-  sf::Vector2f cellButtonPosition(std::size_t col, std::size_t row) const;
+  sf::Vector2f cellButtonPosition(int col, int row) const;
   ButtonStatus buttonStatus(const ButtonArea &area) const;
   ButtonStatus menuButtonStatus(const ButtonArea &area, Button button);
   ButtonStatus cellButtonStatus(const ButtonArea &area, const Cell &cell);
@@ -70,8 +73,8 @@ private:
   sf::RenderWindow &m_window;
   sf::Font m_font;
   std::map<ButtonIcon, sf::Texture> m_icons;
-  Button m_highlightedButton;
-  std::optional<std::pair<size_t, size_t>> m_highlightedCellPos;
+  Button m_buttonUnderMouse;
+  std::optional<std::pair<int, int>> m_cellUnderMouse;
   float m_zoomLevel;
 };
 

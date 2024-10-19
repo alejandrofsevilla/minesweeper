@@ -2,17 +2,15 @@
 
 #include <random>
 
-#include "Cell.hpp"
-
 namespace {
-inline size_t generateRandomValue(size_t min, size_t max) {
+inline int generateRandomValue(int min, int max) {
   std::random_device rd;
   std::mt19937 gen{rd()};
-  std::uniform_int_distribution<size_t> distr{min, max};
+  std::uniform_int_distribution<int> distr{min, max};
   return distr(gen);
 }
 
-inline size_t minesCount(Model::Size size) {
+inline int numberOfMines(Model::Size size) {
   switch (size) {
   case Model::Size::Size9x9:
     return 10;
@@ -24,7 +22,7 @@ inline size_t minesCount(Model::Size size) {
   }
 }
 
-inline std::pair<size_t, size_t> sizeAsPair(Model::Size size) {
+inline std::pair<int, int> sizeAsPair(Model::Size size) {
   switch (size) {
   case Model::Size::Size9x9:
     return {9, 9};
@@ -39,19 +37,19 @@ inline std::pair<size_t, size_t> sizeAsPair(Model::Size size) {
 
 Model::Model()
     : m_status{Status::Ready}, m_size{Size::Size30x16}, m_timeInSeconds{0},
-      m_markedMinesCount{0}, m_cells{}, m_startTime{} {}
+      m_minesCount{0}, m_markedMinesCount{0}, m_cells{}, m_startTime{} {}
 
 Model::Size Model::size() const { return m_size; }
 
 Model::Status Model::status() const { return m_status; }
 
-size_t Model::width() const { return sizeAsPair(m_size).first; }
+int Model::width() const { return sizeAsPair(m_size).first; }
 
-size_t Model::height() const { return sizeAsPair(m_size).second; }
+int Model::height() const { return sizeAsPair(m_size).second; }
 
-size_t Model::markedMinesCount() const { return m_markedMinesCount; };
+int Model::minesCount() const { return m_minesCount - m_markedMinesCount; };
 
-size_t Model::timeInSeconds() const { return m_timeInSeconds; }
+int Model::timeInSeconds() const { return m_timeInSeconds; }
 
 const std::vector<std::vector<Cell>> &Model::cells() const { return m_cells; }
 
@@ -59,8 +57,7 @@ void Model::update() {
   switch (m_status) {
   case Status::Ready:
     if (m_cells.empty()) {
-      generateCells();
-      generateMines();
+      restart();
     }
     return;
   case Status::Started:
@@ -79,7 +76,7 @@ void Model::update() {
   }
 }
 
-void Model::cycleCellStatus(std::size_t col, std::size_t row) {
+void Model::cycleCellStatus(int col, int row) {
   auto &cell{m_cells[col][row]};
   switch (cell.status) {
   case Cell::Status::Hidden:
@@ -98,9 +95,9 @@ void Model::cycleCellStatus(std::size_t col, std::size_t row) {
   }
 }
 
-void Model::reveal(std::size_t col, std::size_t row) {
+void Model::reveal(int col, int row) {
   auto &cell = m_cells[col][row];
-  if (cell.status == Cell::Status::Revealed) {
+  if (cell.status != Cell::Status::Hidden) {
     return;
   }
   cell.status = Cell::Status::Revealed;
@@ -108,9 +105,38 @@ void Model::reveal(std::size_t col, std::size_t row) {
     m_status = Status::Stopped;
     return;
   }
-  revealNeighbours(col, row);
+  tryRevealNeighbours(col, row);
   if (m_status == Status::Ready) {
     m_status = Status::Started;
+  }
+}
+
+void Model::tryRevealNeighbours(int col, int row) {
+  auto &cell{m_cells[col][row]};
+  if (cell.status != Cell::Status::Revealed) {
+    return;
+  }
+  auto gridSize{sizeAsPair(m_size)};
+  auto width{gridSize.first};
+  auto height{gridSize.second};
+  std::vector<Cell *> neighbours;
+  decltype(Cell::neighbourMinesCount) neighbourMarkedMinesCount{0};
+  for (auto i = col - 1; i <= col + 1; i++) {
+    for (auto j = row - 1; j <= row + 1; j++) {
+      if ((i >= 0 && i < width) && (j >= 0 && j < height)) {
+        auto &neighbour{m_cells[i][j]};
+        if (neighbour.status == Cell::Status::MarkedAsMine) {
+          neighbourMarkedMinesCount++;
+        }
+        neighbours.push_back(&neighbour);
+      }
+    }
+  }
+  if (neighbourMarkedMinesCount != cell.neighbourMinesCount) {
+    return;
+  }
+  for (auto &n : neighbours) {
+    reveal(n->col, n->row);
   }
 }
 
@@ -124,6 +150,7 @@ void Model::setSize(Size size) {
 
 void Model::restart() {
   m_cells.clear();
+  m_minesCount = numberOfMines(m_size);
   m_markedMinesCount = 0;
   m_timeInSeconds = 0;
   generateCells();
@@ -133,18 +160,18 @@ void Model::restart() {
 
 void Model::updateTime() {
   m_timeInSeconds =
-      static_cast<size_t>(std::chrono::duration_cast<std::chrono::seconds>(
-                              std::chrono::system_clock::now() - m_startTime)
-                              .count());
+      static_cast<int>(std::chrono::duration_cast<std::chrono::seconds>(
+                           std::chrono::system_clock::now() - m_startTime)
+                           .count());
 }
 
 void Model::generateCells() {
   auto gridSize{sizeAsPair(m_size)};
   auto width{gridSize.first};
   auto height{gridSize.second};
-  for (size_t col = 0; col < width; col++) {
+  for (auto col = 0; col < width; col++) {
     m_cells.push_back({});
-    for (size_t row = 0; row < height; row++) {
+    for (auto row = 0; row < height; row++) {
       m_cells[col].push_back(
           {col, row, 0, Cell::Type::Empty, Cell::Status::Hidden});
     }
@@ -155,16 +182,21 @@ void Model::generateMines() {
   auto gridSize{sizeAsPair(m_size)};
   auto width{gridSize.first};
   auto height{gridSize.second};
-  auto numberOfMines{minesCount(m_size)};
-  for (size_t i = 0; i < numberOfMines; i++) {
+  for (auto i = 0; i < m_minesCount; i++) {
     auto pos{generateRandomValue(0, width * height - 1)};
     auto col = pos % width;
     auto row = pos / width;
     m_cells[col][row].type = Cell::Type::Mine;
-    for (size_t j = col - 1; j <= col + 1; j++) {
-      for (size_t z = row - 1; z <= row + 1; z++) {
-        if ((j > 0 && j < width) && (z > 0 && z < height)) {
-          m_cells[j][z].neighbourMinesCount++;
+  }
+  for (auto col = 0; col < width; col++) {
+    for (auto row = 0; row < height; row++) {
+      for (auto j = col - 1; j <= col + 1; j++) {
+        for (auto z = row - 1; z <= row + 1; z++) {
+          if ((j >= 0 && j < width) && (z >= 0 && z < height)) {
+            if (m_cells[j][z].type == Cell::Type::Mine) {
+              m_cells[col][row].neighbourMinesCount++;
+            }
+          }
         }
       }
     }
@@ -176,23 +208,6 @@ void Model::revealAllMines() {
     for (auto &cell : col) {
       if (cell.type == Cell::Type::Mine) {
         cell.status = Cell::Status::Revealed;
-      }
-    }
-  }
-}
-
-void Model::revealNeighbours(std::size_t col, std::size_t row) {
-  auto &cell = m_cells[col][row];
-  auto neighbourMinesCount{cell.neighbourMinesCount};
-  if (neighbourMinesCount == 0) {
-    auto gridSize{sizeAsPair(m_size)};
-    auto width{gridSize.first};
-    auto height{gridSize.second};
-    for (size_t i = col - 1; i <= col + 1; i++) {
-      for (size_t j = row - 1; j <= row + 1; j++) {
-        if ((i > 0 && i < width) && (j > 0 && j < height)) {
-          reveal(i, j);
-        }
       }
     }
   }

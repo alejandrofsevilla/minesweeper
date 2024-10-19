@@ -1,7 +1,6 @@
 #ifndef MINESWEEPER_CONTROLLER_HPP
 #define MINESWEEPER_CONTROLLER_HPP
 
-#include <SFML/System/Vector2.hpp>
 #include <SFML/Window/Event.hpp>
 
 #include "Model.hpp"
@@ -17,7 +16,8 @@ private:
   void onMouseLeftButtonPressed();
   void onMouseLeftButtonPressedOnBarMenu();
   void onMouseLeftButtonPressedOnCell();
-  void onMouseRightButtonPressed();
+  void onMouseRightButtonPressedOnCell();
+  void onMouseBothButtonsPressedOnCell();
   void onMouseButtonPressed(const sf::Event::MouseButtonEvent &event);
   void onMouseWheelScrolled(const sf::Event::MouseWheelScrollEvent &event);
   void onKeyPressed(const sf::Event::KeyEvent &event);

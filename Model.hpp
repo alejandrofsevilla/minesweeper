@@ -15,18 +15,19 @@ public:
 
   Size size() const;
   Status status() const;
-  size_t width() const;
-  size_t height() const;
-  size_t markedMinesCount() const;
-  size_t timeInSeconds() const;
+  int width() const;
+  int height() const;
+  int minesCount() const;
+  int timeInSeconds() const;
 
   const std::vector<std::vector<Cell>> &cells() const;
 
   void update();
   void restart();
   void setSize(Size size);
-  void cycleCellStatus(std::size_t col, std::size_t row);
-  void reveal(std::size_t col, std::size_t row);
+  void cycleCellStatus(int col, int row);
+  void reveal(int col, int row);
+  void tryRevealNeighbours(int col, int row);
 
 private:
   void startTime();
@@ -34,12 +35,12 @@ private:
   void generateCells();
   void generateMines();
   void revealAllMines();
-  void revealNeighbours(std::size_t col, std::size_t row);
 
   Status m_status;
   Size m_size;
-  size_t m_timeInSeconds;
-  size_t m_markedMinesCount;
+  int m_timeInSeconds;
+  int m_minesCount;
+  int m_markedMinesCount;
   std::vector<std::vector<Cell>> m_cells;
   std::chrono::system_clock::time_point m_startTime;
 };
