@@ -37,7 +37,8 @@ inline std::pair<int, int> sizeAsPair(Model::Size size) {
 
 Model::Model()
     : m_status{Status::Ready}, m_size{Size::Size30x16}, m_timeInSeconds{0},
-      m_minesCount{0}, m_markedMinesCount{0}, m_cells{}, m_startTime{} {}
+      m_minesCount{0}, m_markedMinesCount{0}, m_revealedCellsCount{0},
+      m_cellsToBeRevealed{0}, m_success{false}, m_cells{}, m_startTime{} {}
 
 Model::Size Model::size() const { return m_size; }
 
@@ -50,6 +51,8 @@ int Model::height() const { return sizeAsPair(m_size).second; }
 int Model::minesCount() const { return m_minesCount - m_markedMinesCount; };
 
 int Model::timeInSeconds() const { return m_timeInSeconds; }
+
+bool Model::success() const { return m_success; }
 
 const std::vector<std::vector<Cell>> &Model::cells() const { return m_cells; }
 
@@ -109,6 +112,11 @@ void Model::reveal(int col, int row) {
   if (m_status == Status::Ready) {
     m_status = Status::Started;
   }
+  m_revealedCellsCount++;
+  if (m_revealedCellsCount == m_cellsToBeRevealed && minesCount() == 0) {
+    m_success = true;
+    m_status = Status::Finished;
+  }
 }
 
 void Model::tryRevealNeighbours(int col, int row) {
@@ -151,10 +159,13 @@ void Model::setSize(Size size) {
 void Model::restart() {
   m_cells.clear();
   m_minesCount = numberOfMines(m_size);
+  m_cellsToBeRevealed = width() * height() - m_minesCount;
+  m_revealedCellsCount = 0;
   m_markedMinesCount = 0;
   m_timeInSeconds = 0;
   generateCells();
   generateMines();
+  m_success = false;
   m_status = Status::Ready;
 }
 

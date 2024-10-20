@@ -1,5 +1,6 @@
 #include "View.hpp"
 #include "SFML/Graphics/Color.hpp"
+#include "SFML/Graphics/Text.hpp"
 #include "SFML/System/Vector2.hpp"
 #include <SFML/Window/Mouse.hpp>
 #include <iomanip>
@@ -22,7 +23,8 @@ constexpr auto f_mineIconPath{"../resources/mine.png"};
 constexpr auto f_questionMarkIconPath{"../resources/questionMark.png"};
 constexpr auto f_happyIconPath{"../resources/happy.png"};
 constexpr auto f_sadIconPath{"../resources/sad.png"};
-constexpr auto f_fontSize{22};
+constexpr auto f_quitIconPath{"../resources/quit.png"};
+constexpr auto f_fontSize{25};
 constexpr auto f_zoomMaxLevel{1.f};
 constexpr auto f_zoomMinLevel{2.f};
 constexpr auto f_zoomSensibility{0.1f};
@@ -31,16 +33,17 @@ constexpr auto f_zoomDefaultLevel{f_zoomMinLevel};
 constexpr auto f_menuFrameHeight{64.f};
 constexpr auto f_menuButtonHeight{64.f};
 constexpr auto f_menuButtonWidth{192.f};
-constexpr auto f_menuButtonTextVPosition{14.f};
+constexpr auto f_menuButtonTextVPosition{15.f};
 constexpr auto f_menuButtonOutlineThickness{2.f};
 constexpr auto f_menuFrameOutlineThickness{2.f};
 constexpr auto f_cellButtonOutlineThickness{1.f};
 constexpr auto f_iconSize{.85f};
 const auto f_fontColor{sf::Color::White};
 const auto f_cellButtonColor{sf::Color{120, 128, 136}};
-const auto f_cellPressedButtonColor{sf::Color{40, 40, 40}};
+const auto f_cellPressedButtonColor{sf::Color{56, 64, 72}};
 const auto f_cellhighlightedButtonColor{sf::Color{200, 200, 200}};
-const auto f_menuFrameColor{sf::Color{50, 50, 50}};
+const auto f_cellMineTriggeredColor{sf::Color{139, 0, 0}};
+const auto f_menuFrameColor{sf::Color{68, 76, 84}};
 const auto f_menuButtonColor{sf::Color{120, 128, 136}};
 const auto f_menuHighlightedButtonColor{sf::Color{200, 200, 200}};
 const auto f_menuPressedButtonColor{sf::Color{30, 30, 30}};
@@ -111,6 +114,7 @@ void View::loadResources() {
   m_icons[ButtonIcon::QuestionMark].loadFromFile(f_questionMarkIconPath);
   m_icons[ButtonIcon::Happy].loadFromFile(f_happyIconPath);
   m_icons[ButtonIcon::Sad].loadFromFile(f_sadIconPath);
+  m_icons[ButtonIcon::Quit].loadFromFile(f_quitIconPath);
   for (auto &icon : m_icons) {
     icon.second.setSmooth(true);
   }
@@ -149,7 +153,6 @@ void View::drawMenu() {
   drawMenuButton(pos, Button::Size16x16);
   pos.x += f_menuButtonWidth;
   drawMenuButton(pos, Button::Size30x16);
-  pos.x += f_menuButtonWidth;
   pos.x = static_cast<float>(m_window.getSize().x) - f_menuButtonWidth;
   drawMenuDisplay(pos, formattedTime(m_model.timeInSeconds()));
   pos.x -= f_menuButtonWidth;
@@ -166,7 +169,7 @@ void View::drawCellButton(int col, int row) {
   }
   area.setFillColor(buttonColor(ButtonType::Cell, status));
   if (cell.status == Cell::Status::Revealed && cell.type == Cell::Type::Mine) {
-    area.setFillColor(sf::Color{139, 0, 0});
+    area.setFillColor(f_cellMineTriggeredColor);
   }
   m_window.draw(area);
   drawIconOnButton(area, cellButtonIcon(cell));
@@ -181,14 +184,15 @@ void View::drawMenuButton(const sf::Vector2f &pos, Button button) {
   }
   m_window.draw(area);
   switch (button) {
+  case Button::Quit:
+    return drawIconOnButton(area, ButtonIcon::Quit);
   case Button::Restart:
-    drawIconOnButton(area, m_model.status() != Model::Status::Finished
-                               ? ButtonIcon::Happy
-                               : ButtonIcon::Sad);
-    return;
+    if (m_model.status() == Model::Status::Finished && !m_model.success()) {
+      return drawIconOnButton(area, ButtonIcon::Sad);
+    }
+    return drawIconOnButton(area, ButtonIcon::Happy);
   default:
-    drawTextOnButton(area, buttonContent(button));
-    return;
+    return drawTextOnButton(area, buttonContent(button));
   }
 }
 
@@ -220,6 +224,7 @@ void View::drawIconOnButton(ButtonArea &area, ButtonIcon icon) {
 void View::drawTextOnButton(ButtonArea &area, const std::string &content) {
   sf::Text text{content, m_font};
   text.setCharacterSize(f_fontSize);
+  text.setStyle(sf::Text::Bold);
   auto pos{area.getPosition()};
   auto size{area.getSize()};
   text.setPosition(pos.x + (size.x - text.getLocalBounds().width) * .5f,

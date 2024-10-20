@@ -19,6 +19,7 @@ public:
   int height() const;
   int minesCount() const;
   int timeInSeconds() const;
+  bool success() const;
 
   const std::vector<std::vector<Cell>> &cells() const;
 
@@ -42,6 +43,9 @@ private:
   int m_timeInSeconds;
   int m_minesCount;
   int m_markedMinesCount;
+  int m_revealedCellsCount;
+  int m_cellsToBeRevealed;
+  bool m_success;
   std::vector<std::vector<Cell>> m_cells;
   std::chrono::system_clock::time_point m_startTime;
 };

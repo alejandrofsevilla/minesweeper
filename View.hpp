@@ -44,6 +44,7 @@ private:
     QuestionMark,
     Happy,
     Sad,
+    Quit,
     None
   };
 
