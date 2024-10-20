@@ -2,7 +2,7 @@
 # minesweeper
 Implementation of Minesweeper game
 
-![screenShot](https://github.com/user-attachments/assets/76ff4e9e-cca9-4e43-a076-02c93787f898)
+![screenshot](https://github.com/user-attachments/assets/36a990b4-d763-4360-a212-9994964b4267)
 
 ## Requirements
 * C++17 compiler.
