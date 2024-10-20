@@ -25,7 +25,7 @@ public:
 
   void update();
   void restart();
-  void setSize(Size size);
+  void cycleSize();
   void cycleCellStatus(int col, int row);
   void reveal(int col, int row);
   void tryRevealNeighbours(int col, int row);
@@ -36,6 +36,7 @@ private:
   void generateCells();
   void generateMines();
   void revealAllMines();
+  void setSize(Size size);
   int countNeighbourMines(int col, int row);
 
   Status m_status;

@@ -28,11 +28,11 @@ constexpr auto f_fontSize{25};
 constexpr auto f_zoomMaxLevel{1.f};
 constexpr auto f_zoomMinLevel{2.f};
 constexpr auto f_zoomSensibility{0.1f};
-constexpr auto f_defaultCellSideLen{64.f};
+constexpr auto f_buttonSmallWidth{64.f};
+constexpr auto f_buttonBigWidth{192.f};
+constexpr auto f_buttonHeight{64.f};
 constexpr auto f_zoomDefaultLevel{f_zoomMinLevel};
 constexpr auto f_menuFrameHeight{64.f};
-constexpr auto f_menuButtonHeight{64.f};
-constexpr auto f_menuButtonWidth{192.f};
 constexpr auto f_menuButtonTextVPosition{15.f};
 constexpr auto f_menuButtonOutlineThickness{2.f};
 constexpr auto f_menuFrameOutlineThickness{2.f};
@@ -99,8 +99,8 @@ void View::closeWindow() { m_window.close(); }
 
 void View::loadResources() {
   m_font.loadFromFile(f_fontPath);
-  m_icons[ButtonIcon::Cell].loadFromFile(f_cellIconPath);
-  m_icons[ButtonIcon::Button].loadFromFile(f_buttonIconPath);
+  m_icons[ButtonIcon::SmallButton].loadFromFile(f_cellIconPath);
+  m_icons[ButtonIcon::BigButton].loadFromFile(f_buttonIconPath);
   m_icons[ButtonIcon::One].loadFromFile(f_1IconPath);
   m_icons[ButtonIcon::Two].loadFromFile(f_2IconPath);
   m_icons[ButtonIcon::Three].loadFromFile(f_3IconPath);
@@ -145,29 +145,25 @@ void View::drawMenu() {
   m_window.draw(frame);
   sf::Vector2f pos{0, 0};
   drawMenuButton(pos, Button::Quit);
-  pos.x += f_menuButtonWidth;
+  pos.x += f_buttonBigWidth;
+  drawMenuButton(pos, Button::Size);
+  pos.x += f_buttonBigWidth;
   drawMenuButton(pos, Button::Restart);
-  pos.x += f_menuButtonWidth;
-  drawMenuButton(pos, Button::Size9x9);
-  pos.x += f_menuButtonWidth;
-  drawMenuButton(pos, Button::Size16x16);
-  pos.x += f_menuButtonWidth;
-  drawMenuButton(pos, Button::Size30x16);
-  pos.x = static_cast<float>(m_window.getSize().x) - f_menuButtonWidth;
+  pos.x = static_cast<float>(m_window.getSize().x) - f_buttonBigWidth;
   drawMenuDisplay(pos, formattedTime(m_model.timeInSeconds()));
-  pos.x -= f_menuButtonWidth;
+  pos.x -= f_buttonBigWidth;
   drawMenuDisplay(pos, std::to_string(m_model.minesCount()));
 }
 
 void View::drawCellButton(int col, int row) {
   auto pos{cellButtonPosition(col, row)};
-  auto area{makeButtonArea(pos, ButtonType::Cell)};
+  auto area{makeButtonArea(pos, ButtonType::Small)};
   auto &cell{m_model.cells()[col][row]};
   auto status{cellButtonStatus(area, cell)};
   if (status != ButtonStatus::Pressed) {
-    area.setTexture(&m_icons.at(ButtonIcon::Cell));
+    area.setTexture(&m_icons.at(ButtonIcon::SmallButton));
   }
-  area.setFillColor(buttonColor(ButtonType::Cell, status));
+  area.setFillColor(buttonColor(ButtonType::Small, status));
   if (cell.status == Cell::Status::Revealed && cell.type == Cell::Type::Mine) {
     area.setFillColor(f_cellMineTriggeredColor);
   }
@@ -176,11 +172,11 @@ void View::drawCellButton(int col, int row) {
 }
 
 void View::drawMenuButton(const sf::Vector2f &pos, Button button) {
-  auto area{makeButtonArea(pos, ButtonType::Menu)};
+  auto area{makeButtonArea(pos, ButtonType::Big)};
   auto status{menuButtonStatus(area, button)};
-  area.setFillColor(buttonColor(ButtonType::Menu, status));
+  area.setFillColor(buttonColor(ButtonType::Big, status));
   if (status != ButtonStatus::Pressed) {
-    area.setTexture(&m_icons.at(ButtonIcon::Button));
+    area.setTexture(&m_icons.at(ButtonIcon::BigButton));
   }
   m_window.draw(area);
   switch (button) {
@@ -198,8 +194,8 @@ void View::drawMenuButton(const sf::Vector2f &pos, Button button) {
 
 void View::drawMenuDisplay(const sf::Vector2f &pos,
                            const std::string &content) {
-  auto area{makeButtonArea(pos, ButtonType::Menu)};
-  area.setFillColor(buttonColor(ButtonType::Menu, ButtonStatus::Pressed));
+  auto area{makeButtonArea(pos, ButtonType::Big)};
+  area.setFillColor(buttonColor(ButtonType::Big, ButtonStatus::Pressed));
   m_window.draw(area);
   drawTextOnButton(area, content);
 }
@@ -247,17 +243,17 @@ View::ButtonArea View::makeButtonArea(const sf::Vector2f &pos,
 
 float View::buttonOutlineThickness(ButtonType type) const {
   switch (type) {
-  case ButtonType::Menu:
+  case ButtonType::Big:
     return f_menuButtonOutlineThickness;
   default:
-  case ButtonType::Cell:
+  case ButtonType::Small:
     return f_cellButtonOutlineThickness;
   }
 }
 
 sf::Color View::buttonColor(ButtonType type, ButtonStatus status) const {
   switch (type) {
-  case ButtonType::Menu:
+  case ButtonType::Big:
     switch (status) {
     case ButtonStatus::Pressed:
       return f_menuPressedButtonColor;
@@ -268,7 +264,7 @@ sf::Color View::buttonColor(ButtonType type, ButtonStatus status) const {
       return f_menuButtonColor;
     }
   default:
-  case ButtonType::Cell:
+  case ButtonType::Small:
     switch (status) {
     case ButtonStatus::Pressed:
       return f_cellPressedButtonColor;
@@ -283,16 +279,16 @@ sf::Color View::buttonColor(ButtonType type, ButtonStatus status) const {
 
 sf::Vector2f View::buttonSize(ButtonType type) const {
   switch (type) {
-  case ButtonType::Menu:
-    return {f_menuButtonWidth, f_menuButtonHeight};
+  case ButtonType::Big:
+    return {f_buttonBigWidth, f_buttonHeight};
   default:
-  case ButtonType::Cell:
+  case ButtonType::Small:
     return cellButtonSize();
   }
 }
 
 sf::Vector2f View::cellButtonSize() const {
-  auto sideLength{f_defaultCellSideLen * (m_zoomLevel / f_zoomMinLevel)};
+  auto sideLength{f_buttonSmallWidth * (m_zoomLevel / f_zoomMinLevel)};
   return {sideLength, sideLength};
 }
 
@@ -303,9 +299,8 @@ sf::Vector2f View::cellButtonPosition(int col, int row) const {
   auto gridHeight{cellSize.y * static_cast<float>(m_model.height())};
   auto topLeftCellHPos{(static_cast<float>(windowSize.x) - gridWidth) * 0.5f};
   auto topLeftCellVPos{
-      (static_cast<float>(windowSize.y) - f_menuButtonHeight - gridHeight) *
-          0.5f +
-      f_menuButtonHeight};
+      (static_cast<float>(windowSize.y) - f_buttonHeight - gridHeight) * 0.5f +
+      f_buttonHeight};
   return {topLeftCellHPos + static_cast<float>(col) * cellSize.x,
           topLeftCellVPos + static_cast<float>(row) * cellSize.y};
 }
@@ -317,19 +312,9 @@ View::ButtonStatus View::menuButtonStatus(const ButtonArea &area,
     m_buttonUnderMouse = button;
   }
   switch (button) {
-  case Button::Size9x9:
-    if (m_model.size() == Model::Size::Size9x9) {
-      status = ButtonStatus::Pressed;
-    }
-    break;
-  case Button::Size16x16:
-    if (m_model.size() == Model::Size::Size16x16) {
-      status = ButtonStatus::Pressed;
-    }
-    break;
-  case Button::Size30x16:
-    if (m_model.size() == Model::Size::Size30x16) {
-      status = ButtonStatus::Pressed;
+  case Button::Size:
+    if (m_model.status() != Model::Status::Ready) {
+      status = ButtonStatus::Released;
     }
     break;
   case Button::None:
@@ -363,6 +348,9 @@ View::ButtonStatus View::cellButtonStatus(const ButtonArea &area,
 }
 
 View::ButtonStatus View::buttonStatus(const ButtonArea &area) const {
+  if (m_model.status() == Model::Status::Finished) {
+    return ButtonStatus::Released;
+  }
   auto isMouseHoveringButton{area.getGlobalBounds().contains(
       m_window.mapPixelToCoords(sf::Mouse::getPosition(m_window)))};
   auto isMousePressed{sf::Mouse::isButtonPressed(sf::Mouse::Left)};
@@ -381,12 +369,16 @@ std::string View::buttonContent(View::Button button) const {
     return "Quit";
   case View::Button::Restart:
     return "Restart";
-  case View::Button::Size9x9:
-    return "9x9";
-  case View::Button::Size16x16:
-    return "16x16";
-  case View::Button::Size30x16:
-    return "30x16";
+  case View::Button::Size:
+    switch (m_model.size()) {
+    case Model::Size::Size9x9:
+      return "9x9";
+    case Model::Size::Size16x16:
+      return "16x16";
+    default:
+    case Model::Size::Size30x16:
+      return "30x16";
+    }
   default:
     return "";
   }

@@ -41,14 +41,10 @@ void Controller ::onMouseLeftButtonPressedOnBarMenu() {
   case View::Button::Restart:
     m_model.restart();
     return;
-  case View::Button::Size9x9:
-    m_model.setSize(Model::Size::Size9x9);
-    return;
-  case View::Button::Size16x16:
-    m_model.setSize(Model::Size::Size16x16);
-    return;
-  case View::Button::Size30x16:
-    m_model.setSize(Model::Size::Size30x16);
+  case View::Button::Size:
+    if (m_model.status() == Model::Status::Ready) {
+      m_model.cycleSize();
+    }
     return;
   default:
     return;

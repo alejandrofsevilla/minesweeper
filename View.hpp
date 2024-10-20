@@ -11,7 +11,7 @@
 
 class View {
 public:
-  enum class Button { Quit, Restart, Size9x9, Size16x16, Size30x16, None };
+  enum class Button { Quit, Restart, Size, None };
 
   View(sf::RenderWindow &window, Model &model);
 
@@ -26,11 +26,11 @@ public:
 private:
   using ButtonArea = sf::RectangleShape;
 
-  enum class ButtonType { Menu, Cell };
+  enum class ButtonType { Big, Small };
   enum class ButtonStatus { Released, Highlighted, Pressed };
   enum class ButtonIcon {
-    Cell,
-    Button,
+    SmallButton,
+    BigButton,
     One,
     Two,
     Three,

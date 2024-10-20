@@ -79,6 +79,23 @@ void Model::update() {
   }
 }
 
+void Model::cycleSize() {
+  switch (m_size) {
+  case Size::Size9x9:
+    m_size = Size::Size16x16;
+    break;
+  case Size::Size16x16:
+    m_size = Size::Size30x16;
+    break;
+  case Size::Size30x16:
+    m_size = Size::Size9x9;
+    break;
+  default:
+    break;
+  }
+  restart();
+}
+
 void Model::cycleCellStatus(int col, int row) {
   auto &cell{m_cells[col][row]};
   switch (cell.status) {
