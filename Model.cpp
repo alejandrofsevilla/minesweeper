@@ -123,6 +123,7 @@ void Model::reveal(int col, int row) {
   cell.status = Cell::Status::Revealed;
   if (cell.type == Cell::Type::Mine) {
     m_status = Status::Stopped;
+    cell.triggered = true;
     return;
   }
   tryRevealNeighbours(col, row);
@@ -201,7 +202,7 @@ void Model::generateCells() {
     m_cells.push_back({});
     for (auto row = 0; row < height; row++) {
       m_cells[col].push_back(
-          {col, row, 0, Cell::Type::Empty, Cell::Status::Hidden});
+          {col, row, 0, Cell::Type::Empty, Cell::Status::Hidden, false});
     }
   }
 }
@@ -226,7 +227,7 @@ void Model::generateMines() {
 void Model::revealAllMines() {
   for (auto &col : m_cells) {
     for (auto &cell : col) {
-      if (cell.type == Cell::Type::Mine) {
+      if (cell.type == Cell::Type::Mine && cell.status != Cell::Status::MarkedAsMine) {
         cell.status = Cell::Status::Revealed;
       }
     }

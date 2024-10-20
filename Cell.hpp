@@ -10,6 +10,7 @@ struct Cell {
   int neighbourMinesCount{0};
   Type type{Type::Empty};
   Status status{Status::Hidden};
+  bool triggered{false};
 };
 
 #endif

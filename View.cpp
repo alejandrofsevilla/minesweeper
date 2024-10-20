@@ -43,6 +43,7 @@ const auto f_cellButtonColor{sf::Color{120, 128, 136}};
 const auto f_cellPressedButtonColor{sf::Color{56, 64, 72}};
 const auto f_cellhighlightedButtonColor{sf::Color{200, 200, 200}};
 const auto f_cellMineTriggeredColor{sf::Color{139, 0, 0}};
+const auto f_cellFalseFlagColor{sf::Color{136, 51, 51}};
 const auto f_menuFrameColor{sf::Color{68, 76, 84}};
 const auto f_menuButtonColor{sf::Color{120, 128, 136}};
 const auto f_menuHighlightedButtonColor{sf::Color{200, 200, 200}};
@@ -164,8 +165,11 @@ void View::drawCellButton(int col, int row) {
     area.setTexture(&m_icons.at(ButtonIcon::SmallButton));
   }
   area.setFillColor(buttonColor(ButtonType::Small, status));
-  if (cell.status == Cell::Status::Revealed && cell.type == Cell::Type::Mine) {
+  if (cell.triggered) {
     area.setFillColor(f_cellMineTriggeredColor);
+  }
+  else if (cell.status == Cell::Status::MarkedAsMine && cell.type != Cell::Type::Mine && m_model.status() == Model::Status::Finished) {
+    area.setFillColor(f_cellFalseFlagColor);
   }
   m_window.draw(area);
   drawIconOnButton(area, cellButtonIcon(cell));
