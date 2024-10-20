@@ -1,4 +1,5 @@
 #include "View.hpp"
+#include "SFML/Graphics/Color.hpp"
 #include "SFML/System/Vector2.hpp"
 #include <SFML/Window/Mouse.hpp>
 #include <iomanip>
@@ -164,6 +165,9 @@ void View::drawCellButton(int col, int row) {
     area.setTexture(&m_icons.at(ButtonIcon::Cell));
   }
   area.setFillColor(buttonColor(ButtonType::Cell, status));
+  if (cell.status == Cell::Status::Revealed && cell.type == Cell::Type::Mine) {
+    area.setFillColor(sf::Color{139, 0, 0});
+  }
   m_window.draw(area);
   drawIconOnButton(area, cellButtonIcon(cell));
 }
