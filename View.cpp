@@ -331,6 +331,9 @@ View::ButtonStatus View::cellButtonStatus(const ButtonArea &area,
   if (status != ButtonStatus::Released) {
     m_cellUnderMouse = {cell.col, cell.row};
   }
+  if (m_model.status() == Model::Status::Finished) {
+    status = ButtonStatus::Released;
+  }
   switch (cell.status) {
   case Cell::Status::MarkedAsMine:
     status = ButtonStatus::Released;
@@ -348,9 +351,6 @@ View::ButtonStatus View::cellButtonStatus(const ButtonArea &area,
 }
 
 View::ButtonStatus View::buttonStatus(const ButtonArea &area) const {
-  if (m_model.status() == Model::Status::Finished) {
-    return ButtonStatus::Released;
-  }
   auto isMouseHoveringButton{area.getGlobalBounds().contains(
       m_window.mapPixelToCoords(sf::Mouse::getPosition(m_window)))};
   auto isMousePressed{sf::Mouse::isButtonPressed(sf::Mouse::Left)};
