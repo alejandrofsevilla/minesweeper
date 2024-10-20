@@ -227,7 +227,8 @@ void Model::generateMines() {
 void Model::revealAllMines() {
   for (auto &col : m_cells) {
     for (auto &cell : col) {
-      if (cell.type == Cell::Type::Mine && cell.status != Cell::Status::MarkedAsMine) {
+      if (cell.type == Cell::Type::Mine &&
+          cell.status != Cell::Status::MarkedAsMine) {
         cell.status = Cell::Status::Revealed;
       }
     }
