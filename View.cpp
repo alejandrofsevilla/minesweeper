@@ -167,8 +167,9 @@ void View::drawCellButton(int col, int row) {
   area.setFillColor(buttonColor(ButtonType::Small, status));
   if (cell.triggered) {
     area.setFillColor(f_cellMineTriggeredColor);
-  }
-  else if (cell.status == Cell::Status::MarkedAsMine && cell.type != Cell::Type::Mine && m_model.status() == Model::Status::Finished) {
+  } else if (cell.status == Cell::Status::MarkedAsMine &&
+             cell.type != Cell::Type::Mine &&
+             m_model.status() == Model::Status::Finished) {
     area.setFillColor(f_cellFalseFlagColor);
   }
   m_window.draw(area);
