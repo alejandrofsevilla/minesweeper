@@ -5,9 +5,6 @@
 namespace {
 constexpr auto f_windowTitle{"Minesweeper"};
 constexpr auto f_windowStyle{sf::Style::Fullscreen};
-constexpr auto f_modelMaxWidth{30};
-constexpr auto f_modelMaxHeight{16};
-constexpr auto f_defaultModelUpdatePeriod{std::chrono::milliseconds{300}};
 constexpr auto f_antialiasing{4};
 } // namespace
 
