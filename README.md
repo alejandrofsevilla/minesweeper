@@ -1,5 +1,6 @@
 # ![LinuxWorkflow](https://github.com/alejandrofsevilla/minesweeper/actions/workflows/Linux.yml/badge.svg) ![WindowsWorkflow](https://github.com/alejandrofsevilla/minesweeper/actions/workflows/Windows.yml/badge.svg)
 # Minesweeper
+Implementation of Minesweeper game using SFML.
 
 ![screenshot](https://github.com/user-attachments/assets/36a990b4-d763-4360-a212-9994964b4267)
 
