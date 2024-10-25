@@ -1,6 +1,7 @@
 cmake_minimum_required(VERSION 3.22.0)
 
-set(SFML_VERSION "2.6.0")
+SET(CMAKE_CXX_STANDARD 17)
+set(SFML_VERSION "2.6.1")
 set(BIN_PATH_NAME "bin")
 set(RESOURCES_PATH_NAME "resources")
 set(CMAKE_INSTALL_PREFIX "install")
@@ -8,6 +9,7 @@ set(CMAKE_INSTALL_RPATH "../lib")
 set(CMAKE_INSTALL_RPATH_USE_LINK_PATH TRUE)
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/${BIN_PATH_NAME})
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
+SET(CMAKE_CXX_STANDARD_REQUIRED ON)
 
 project(minesweeper LANGUAGES CXX)
 
@@ -31,13 +33,11 @@ target_link_libraries(${PROJECT_NAME} PRIVATE
   sfml-graphics
   sfml-window)
 
-target_compile_features(${PROJECT_NAME} PRIVATE cxx_std_17)
-
 if (CMAKE_COMPILER_IS_GNUCXX)
-  target_compile_options(${PROJECT_NAME} PRIVATE -Wall -Wextra -Wpedantic -Werror)
+  target_compile_options(${PROJECT_NAME} PRIVATE -stdlib=libstdc++ -Wall -Wextra -Wpedantic -Werror)
 elseif(MSVC)
   target_compile_options(${PROJECT_NAME} PRIVATE -W4)
-endif()
+endif(ELSEIF)
 
 if(WIN32)
   add_custom_command(
