@@ -12,20 +12,6 @@ jobs:
     steps:
     - uses: actions/checkout@v3
 
-    - name: install dependencies
-      run: sudo brew update;
-           sudo brew install
-                libxrandr-dev
-                libxcursor-dev
-                libudev-dev
-                libopenal-dev
-                libflac-dev
-                libvorbis-dev
-                libgl1-mesa-dev
-                libegl1-mesa-dev
-                libdrm-dev
-                libgbm-dev
-
     - name: Configure CMake
       run: cmake -B ${{github.workspace}}/build -DCMAKE_BUILD_TYPE=${{env.BUILD_TYPE}}
 
