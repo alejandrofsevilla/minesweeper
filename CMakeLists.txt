@@ -34,7 +34,7 @@ target_link_libraries(${PROJECT_NAME} PRIVATE
   sfml-window)
 
 if (CMAKE_COMPILER_IS_GNUCXX)
-  target_compile_options(${PROJECT_NAME} PRIVATE -stdlib=libstdc++ -Wall -Wextra -Wpedantic -Werror)
+  target_compile_options(${PROJECT_NAME} PRIVATE -Wall -Wextra -Wpedantic -Werror)
 elseif(MSVC)
   target_compile_options(${PROJECT_NAME} PRIVATE -W4)
 endif(ELSEIF)
