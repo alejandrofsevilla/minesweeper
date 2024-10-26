@@ -37,7 +37,7 @@ if (CMAKE_COMPILER_IS_GNUCXX)
   target_compile_options(${PROJECT_NAME} PRIVATE -Wall -Wextra -Wpedantic -Werror)
 elseif(MSVC)
   target_compile_options(${PROJECT_NAME} PRIVATE -W4)
-endif(ELSEIF)
+endif()
 
 if(WIN32)
   add_custom_command(
