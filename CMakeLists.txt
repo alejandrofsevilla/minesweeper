@@ -1,6 +1,6 @@
 cmake_minimum_required(VERSION 3.22.0)
 
-SET(CMAKE_CXX_STANDARD 17)
+set(CMAKE_CXX_STANDARD 17)
 set(SFML_VERSION "2.6.1")
 set(BIN_PATH_NAME "bin")
 set(RESOURCES_PATH_NAME "resources")
@@ -11,7 +11,7 @@ set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/${BIN_PATH_NAME})
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 SET(CMAKE_CXX_STANDARD_REQUIRED ON)
 
-project(minesweeper LANGUAGES CXX)
+project(minesweeper LANGUAGES CXX VERSION 1.0.0)
 
 include(FetchContent)
 FetchContent_Declare(SFML
@@ -49,3 +49,7 @@ endif()
 install(TARGETS ${PROJECT_NAME} DESTINATION ${BIN_PATH_NAME})
 install(DIRECTORY ${RESOURCES_PATH_NAME} DESTINATION .)
 
+include(InstallRequiredSystemLibraries)
+set(CPACK_GENERATOR "ZIP")
+set(CPACK_SOURCE_GENERATOR "ZIP")
+include(CPack)
