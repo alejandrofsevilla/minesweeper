@@ -47,8 +47,8 @@ jobs:
       env:
         GITHUB_TOKEN: ${{secrets.GITHUB_TOKEN}}
       with:
-        tag_name: Release ${{runner.os}} ${{github.run_number}}
-        release_name: ${{steps.pack.outputs.package_name}} ${{github.run_number}}
+        tag_name: ${{runner.os}} release ${{github.run_number}}
+        release_name: release${{github.run_number}}-${{steps.pack.outputs.package_name}}
 
     - name: Update release asset
       if: github.ref == 'refs/heads/main'
