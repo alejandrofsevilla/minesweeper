@@ -8,6 +8,7 @@ Implementation of Minesweeper game using [SFML](https://www.sfml-dev.org/).
 ## Requirements
 * C++17 compiler.
 * CMake
+* [SFML 2.6.0 requirements](https://www.sfml-dev.org/tutorials/2.6/start-cmake.php#requirements). 
 
 ## Build and Install
 - Clone the repository to your local machine.
