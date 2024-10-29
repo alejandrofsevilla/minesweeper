@@ -13,7 +13,7 @@ Implementation of Minesweeper game using [SFML](https://www.sfml-dev.org/).
 - Clone the repository to your local machine.
    ```terminal
    git clone https://github.com/alejandrofsevilla/minesweeper.git
-   cd game-of-life
+   cd minesweeper
    ```
 - Build.
    ```terminal
