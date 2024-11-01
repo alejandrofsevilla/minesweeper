@@ -13,7 +13,6 @@ public:
   void onEvent(const sf::Event &event);
 
 private:
-  void onMouseLeftButtonPressed();
   void onMouseLeftButtonPressedOnBarMenu();
   void onMouseLeftButtonPressedOnCell();
   void onMouseRightButtonPressedOnCell();

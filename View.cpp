@@ -30,7 +30,7 @@ constexpr auto f_zoomMinLevel{2.f};
 constexpr auto f_zoomSensibility{0.1f};
 constexpr auto f_buttonSmallWidth{64.f};
 constexpr auto f_buttonBigWidth{192.f};
-constexpr auto f_buttonHeight{64.f};
+constexpr auto f_buttonHeight{63.5f};
 constexpr auto f_zoomDefaultLevel{f_zoomMinLevel};
 constexpr auto f_menuFrameHeight{64.f};
 constexpr auto f_menuButtonTextVPosition{15.f};
@@ -38,6 +38,8 @@ constexpr auto f_menuButtonOutlineThickness{2.f};
 constexpr auto f_menuFrameOutlineThickness{2.f};
 constexpr auto f_cellButtonOutlineThickness{1.f};
 constexpr auto f_iconSize{.85f};
+constexpr auto f_defaultWindowWidth{1920};
+constexpr auto f_defaultWindowHeight{1080};
 const auto f_fontColor{sf::Color::White};
 const auto f_cellButtonColor{sf::Color{120, 128, 136}};
 const auto f_cellPressedButtonColor{sf::Color{56, 64, 72}};
@@ -85,6 +87,7 @@ void View::update() {
   drawBackground();
   drawCells();
   drawMenu();
+  scaleWindow();
   m_window.display();
 }
 
@@ -122,9 +125,8 @@ void View::loadResources() {
 }
 
 void View::drawBackground() {
-  auto windowSize{m_window.getSize()};
   ButtonArea background{
-      {static_cast<float>(windowSize.x), static_cast<float>(windowSize.y)}};
+      {static_cast<float>(f_defaultWindowWidth), static_cast<float>(f_defaultWindowHeight)}};
   background.setFillColor(f_backgroundColor);
   m_window.draw(background);
 }
@@ -138,8 +140,9 @@ void View::drawCells() {
 }
 
 void View::drawMenu() {
-  auto windowSize{m_window.getSize()};
-  ButtonArea frame{{static_cast<float>(windowSize.x), f_menuFrameHeight}};
+  auto windowSize{m_window.getView().getSize()};
+  ButtonArea frame{{f_defaultWindowWidth, f_menuFrameHeight}};
+  frame.setPosition(0, 0);
   frame.setFillColor(f_menuFrameColor);
   frame.setOutlineColor(f_backgroundColor);
   frame.setOutlineThickness(f_menuButtonOutlineThickness);
@@ -150,7 +153,7 @@ void View::drawMenu() {
   drawMenuButton(pos, Button::Size);
   pos.x += f_buttonBigWidth;
   drawMenuButton(pos, Button::Restart);
-  pos.x = static_cast<float>(m_window.getSize().x) - f_buttonBigWidth;
+  pos.x = static_cast<float>(f_defaultWindowWidth) - f_buttonBigWidth;
   drawMenuDisplay(pos, formattedTime(m_model.timeInSeconds()));
   pos.x -= f_buttonBigWidth;
   drawMenuDisplay(pos, std::to_string(m_model.minesCount()));
@@ -221,7 +224,6 @@ void View::drawIconOnButton(ButtonArea &area, ButtonIcon icon) {
   m_window.draw(mask);
 }
 
-// See: https://en.sfml-dev.org/forums/index.php?topic=29521.0
 void View::drawTextOnButton(ButtonArea &area, const std::string &content) {
   sf::Text text{content, m_font};
   text.setCharacterSize(f_fontSize);
@@ -232,6 +234,13 @@ void View::drawTextOnButton(ButtonArea &area, const std::string &content) {
                    pos.y + f_menuButtonTextVPosition);
   text.setFillColor(f_fontColor);
   m_window.draw(text);
+}
+
+void View::scaleWindow() {
+  auto view{m_window.getView()};
+  view.setSize(f_defaultWindowWidth, f_defaultWindowHeight);
+  view.setCenter(f_defaultWindowWidth * .5f, f_defaultWindowHeight * .5f);
+  m_window.setView(view);
 }
 
 View::ButtonArea View::makeButtonArea(const sf::Vector2f &pos,
@@ -293,18 +302,18 @@ sf::Vector2f View::buttonSize(ButtonType type) const {
 }
 
 sf::Vector2f View::cellButtonSize() const {
-  auto sideLength{f_buttonSmallWidth * (m_zoomLevel / f_zoomMinLevel)};
-  return {sideLength, sideLength};
+  auto width{f_buttonSmallWidth * (m_zoomLevel / f_zoomMinLevel)};
+  auto height{ f_buttonHeight * (m_zoomLevel / f_zoomMinLevel) };
+  return {width, height};
 }
 
 sf::Vector2f View::cellButtonPosition(int col, int row) const {
-  auto windowSize{m_window.getSize()};
   auto cellSize{cellButtonSize()};
   auto gridWidth{cellSize.x * static_cast<float>(m_model.width())};
   auto gridHeight{cellSize.y * static_cast<float>(m_model.height())};
-  auto topLeftCellHPos{(static_cast<float>(windowSize.x) - gridWidth) * 0.5f};
+  auto topLeftCellHPos{(static_cast<float>(f_defaultWindowWidth) - gridWidth) * 0.5f};
   auto topLeftCellVPos{
-      (static_cast<float>(windowSize.y) - f_buttonHeight - gridHeight) * 0.5f +
+      (static_cast<float>(f_defaultWindowHeight) - f_buttonHeight - gridHeight) * 0.5f +
       f_buttonHeight};
   return {topLeftCellHPos + static_cast<float>(col) * cellSize.x,
           topLeftCellVPos + static_cast<float>(row) * cellSize.y};

@@ -57,6 +57,7 @@ private:
   void drawMenuDisplay(const sf::Vector2f &pos, const std::string &content);
   void drawIconOnButton(ButtonArea &button, ButtonIcon icon);
   void drawTextOnButton(ButtonArea &button, const std::string &content);
+  void scaleWindow();
 
   ButtonArea makeButtonArea(const sf::Vector2f &pos, ButtonType type) const;
   float buttonOutlineThickness(ButtonType type) const;
