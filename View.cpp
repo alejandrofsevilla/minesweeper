@@ -140,7 +140,6 @@ void View::drawCells() {
 }
 
 void View::drawMenu() {
-  auto& windowSize{m_window.getView().getSize()};
   ButtonArea frame{{f_defaultWindowWidth, f_menuFrameHeight}};
   frame.setPosition(0, 0);
   frame.setFillColor(f_menuFrameColor);
