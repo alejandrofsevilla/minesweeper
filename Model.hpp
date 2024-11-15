@@ -31,7 +31,6 @@ public:
   void tryRevealNeighbours(int col, int row);
 
 private:
-  void startTime();
   void updateTime();
   void generateCells();
   void generateMines();

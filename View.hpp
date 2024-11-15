@@ -26,7 +26,7 @@ public:
 private:
   using ButtonArea = sf::RectangleShape;
 
-  enum class ButtonType { Big, Medium, Small };
+  enum class ButtonType { Big, Medium, Small, Custom };
   enum class ButtonStatus { Released, Highlighted, Pressed };
   enum class ButtonIcon {
     SmallButton,
@@ -55,15 +55,16 @@ private:
   void drawMenu();
   void drawCellButton(int col, int row);
   void drawMenuButton(int col, Button button, ButtonType type);
-  void drawMenuDisplay(int col, const std::string &content);
+  void drawMenuDisplay(int col, int width, const std::string &content);
   void drawIconOnButton(ButtonArea &button, ButtonIcon icon);
   void drawTextOnButton(ButtonArea &button, const std::string &content);
   void scaleWindow();
 
-  ButtonArea makeButtonArea(const sf::Vector2f &pos, ButtonType type) const;
+  ButtonArea makeButtonArea(const sf::Vector2f &pos, ButtonType type,
+                            int width = 0) const;
   float buttonOutlineThickness(ButtonType type) const;
   sf::Color buttonColor(ButtonStatus status) const;
-  sf::Vector2f buttonSize(ButtonType type) const;
+  sf::Vector2f buttonSize(ButtonType type, int width = 0) const;
   sf::Vector2f cellButtonSize() const;
   sf::Vector2f cellButtonPosition(int col, int row) const;
   ButtonStatus buttonStatus(const ButtonArea &area) const;
