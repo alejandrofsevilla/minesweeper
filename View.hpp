@@ -61,8 +61,7 @@ private:
   void scaleWindow();
 
   ButtonArea makeButtonArea(const sf::Vector2f &pos, ButtonType type,
-                            int width = 0) const;
-  float buttonOutlineThickness(ButtonType type) const;
+                            float outlineThickness, int width = 0) const;
   sf::Color buttonColor(ButtonStatus status) const;
   sf::Vector2f buttonSize(ButtonType type, int width = 0) const;
   sf::Vector2f cellButtonSize() const;
