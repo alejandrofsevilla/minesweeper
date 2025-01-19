@@ -39,7 +39,7 @@ constexpr auto f_menuButtonTextVPosition{15.f};
 constexpr auto f_menuLeftMargin{
     (f_defaultWindowWidth - 30 * f_buttonSmallWidth) * .5f};
 constexpr auto f_buttonOutlineThickness{1.f};
-constexpr auto f_displayOutlineThickness{5.f};
+constexpr auto f_displayOutlineThickness{1.f};
 const auto f_fontColor{sf::Color::White};
 const auto f_buttonColor{sf::Color{120, 128, 136}};
 const auto f_buttonPressedColor{sf::Color{56, 64, 72}};
@@ -49,7 +49,7 @@ const auto f_cellFalseFlagColor{sf::Color{136, 51, 51}};
 const auto f_menuFrameColor{sf::Color{68, 76, 84}};
 const auto f_menuButtonColor{sf::Color{120, 128, 136}};
 const auto f_menuHighlightedButtonColor{sf::Color{200, 200, 200}};
-const auto f_menuDisplayColor{sf::Color{20, 20, 20}};
+const auto f_menuDisplayColor{sf::Color{87, 93, 99}};
 const auto f_buttonOutlineColor{sf::Color::Transparent};
 const auto f_backgroundColor{sf::Color{40, 40, 40}};
 
@@ -143,7 +143,7 @@ void View::drawCells() {
 void View::drawMenu() {
   auto frame{makeButtonArea({f_menuLeftMargin, 0.}, ButtonType::Custom,
                             f_buttonOutlineThickness, 30)};
-  frame.setFillColor(f_menuFrameColor);
+  frame.setFillColor(f_backgroundColor);
   frame.setOutlineColor(f_backgroundColor);
   m_window.draw(frame);
   drawMenuButton(0, Button::Size, ButtonType::Big);
