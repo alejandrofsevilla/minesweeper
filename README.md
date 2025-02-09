@@ -1,10 +1,9 @@
 # [![MacOsWorkflow](https://github.com/alejandrofsevilla/minesweeper/actions/workflows/MacOs.yml/badge.svg)](https://github.com/alejandrofsevilla/minesweeper/actions/workflows/MacOs.yml) [![LinuxWorkflow](https://github.com/alejandrofsevilla/minesweeper/actions/workflows/Linux.yml/badge.svg)](https://github.com/alejandrofsevilla/minesweeper/actions/workflows/Linux.yml) [![WindowsWorkflow](https://github.com/alejandrofsevilla/minesweeper/actions/workflows/Windows.yml/badge.svg)](https://github.com/alejandrofsevilla/minesweeper/actions/workflows/Windows.yml)
 
-
 # Minesweeper
 C++ implementation of minesweeper game using [SFML](https://www.sfml-dev.org/) library.
 
-![Microsoft Minesweeper Screenshot 2025 02 07 - 09 46 57 34](https://github.com/user-attachments/assets/b53fc220-f18c-41a3-9752-6296d3ed26f7)
+![screenshot](https://github.com/user-attachments/assets/3da8ce5b-c9e3-4ebf-970f-0a93cbd6f633)
 
 ## Requirements
 * C++17 compiler.
