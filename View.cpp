@@ -307,6 +307,9 @@ View::ButtonStatus View::menuButtonStatus(const ButtonArea &area,
     break;
   case Button::None:
     status = ButtonStatus::Released;
+    break;
+  default:
+    break;
   }
   return status;
 }
