@@ -26,12 +26,22 @@ public:
 private:
   using ButtonArea = sf::RectangleShape;
 
-  enum class ButtonType { Big, Medium, Small, Custom };
+  enum class ButtonType {
+    Button11Middle,
+    Button13Middle,
+    Button3Left,
+    Button2Middle,
+    Button1Right,
+    Standard
+  };
   enum class ButtonStatus { Released, Highlighted, Pressed };
   enum class ButtonIcon {
-    SmallButton,
-    MediumButton,
-    BigButton,
+    ButtonStandard,
+    Button11Middle,
+    Button13Middle,
+    Button2Middle,
+    Button3Left,
+    Button1Right,
     One,
     Two,
     Three,
@@ -54,16 +64,15 @@ private:
   void drawCells();
   void drawMenu();
   void drawCellButton(int col, int row);
-  void drawMenuButton(int col, Button button, ButtonType type);
+  void drawMenuButton(int col, int width, Button button, ButtonType type);
   void drawMenuDisplay(int col, int width, const std::string &content);
   void drawIconOnButton(ButtonArea &button, ButtonIcon icon);
   void drawTextOnButton(ButtonArea &button, const std::string &content);
   void scaleWindow();
 
-  ButtonArea makeButtonArea(const sf::Vector2f &pos, ButtonType type,
-                            float outlineThickness, int width = 0) const;
+  ButtonArea makeButtonArea(const sf::Vector2f &pos, int width,
+                            float outlineThickness) const;
   sf::Color buttonColor(ButtonStatus status) const;
-  sf::Vector2f buttonSize(ButtonType type, int width = 0) const;
   sf::Vector2f cellButtonSize() const;
   sf::Vector2f cellButtonPosition(int col, int row) const;
   ButtonStatus buttonStatus(const ButtonArea &area) const;
