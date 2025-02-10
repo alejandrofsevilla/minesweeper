@@ -3,7 +3,7 @@
 # Minesweeper
 C++ implementation of minesweeper game using [SFML](https://www.sfml-dev.org/) library.
 
-![screenshot](https://github.com/user-attachments/assets/3da8ce5b-c9e3-4ebf-970f-0a93cbd6f633)
+![ss](https://github.com/user-attachments/assets/926196a8-4080-498a-9f5c-2f838103df9a)
 
 ## Requirements
 * C++17 compiler.
