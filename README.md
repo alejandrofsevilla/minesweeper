@@ -3,7 +3,7 @@
 # Minesweeper
 C++ implementation of minesweeper game using [SFML](https://www.sfml-dev.org/) library.
 <p align="left">
-  <img src="https://github.com/user-attachments/assets/926196a8-4080-498a-9f5c-2f838103df9a"  width="500" />
+  <img src="https://github.com/user-attachments/assets/926196a8-4080-498a-9f5c-2f838103df9a"  width="450" />
 </p>
 
 ## Requirements
