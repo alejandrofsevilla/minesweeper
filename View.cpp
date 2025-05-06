@@ -74,8 +74,8 @@ View::View(sf::RenderWindow &window, Model &model)
       m_icons{{ButtonIcon::Mine, {}},
               {ButtonIcon::Flag, {}},
               {ButtonIcon::QuestionMark, {}}},
-      m_buttonUnderMouse{}, m_cellUnderMouse{},
-      m_zoomLevel{f_zoomDefaultLevel} {
+      m_buttonUnderMouse{}, m_cellUnderMouse{}, m_zoomLevel{
+                                                    f_zoomDefaultLevel} {
   loadResources();
 }
 
@@ -154,13 +154,13 @@ void View::drawMenu() {
   frame.setFillColor(f_menuFrameColor);
   frame.setOutlineColor(f_backgroundColor);
   m_window.draw(frame);
-  drawMenuButton(0, 3, Button::Size, ButtonType::Button3Left);
-  drawMenuButton(3, 11, Button::None, ButtonType::Button11Middle);
+  drawMenuButton(0, 3, Button::Size, ButtonIcon::Button3Left);
+  drawMenuButton(3, 11, Button::None, ButtonIcon::Button11Middle);
   drawMenuDisplay(11, 3, std::to_string(m_model.minesCount()));
-  drawMenuButton(14, 2, Button::Restart, ButtonType::Button2Middle);
-  drawMenuButton(16, 13, Button::None, ButtonType::Button13Middle);
+  drawMenuButton(14, 2, Button::Restart, ButtonIcon::Button2Middle);
+  drawMenuButton(16, 13, Button::None, ButtonIcon::Button13Middle);
   drawMenuDisplay(16, 3, formattedTime(m_model.timeInSeconds()));
-  drawMenuButton(29, 1, Button::Quit, ButtonType::Button1Right);
+  drawMenuButton(29, 1, Button::Quit, ButtonIcon::Button1Right);
 }
 
 void View::drawCellButton(int col, int row) {
@@ -185,13 +185,13 @@ void View::drawCellButton(int col, int row) {
   drawIconOnButton(area, cellButtonIcon(cell));
 }
 
-void View::drawMenuButton(int col, int width, Button button, ButtonType type) {
+void View::drawMenuButton(int col, int width, Button button, ButtonIcon icon) {
   auto area{makeButtonArea({f_menuLeftMargin + col * f_buttonSmallWidth, 0},
                            width, f_buttonOutlineThickness)};
   auto status{menuButtonStatus(area, button)};
   area.setFillColor(buttonColor(status));
   if (status != ButtonStatus::Pressed) {
-    area.setTexture(&m_icons.at(menuButtonIcon(type)));
+    area.setTexture(&m_icons.at(icon));
   }
   m_window.draw(area);
   switch (button) {
@@ -405,23 +405,5 @@ View::ButtonIcon View::cellButtonIcon(const Cell &cell) const {
     }
   default:
     return ButtonIcon::None;
-  }
-}
-
-View::ButtonIcon View::menuButtonIcon(ButtonType type) const {
-  switch (type) {
-  case ButtonType::Button11Middle:
-    return ButtonIcon::Button11Middle;
-  case ButtonType::Button13Middle:
-    return ButtonIcon::Button13Middle;
-  case ButtonType::Button1Right:
-    return ButtonIcon::Button1Right;
-  case ButtonType::Button3Left:
-    return ButtonIcon::Button3Left;
-  case ButtonType::Button2Middle:
-    return ButtonIcon::Button2Middle;
-  default:
-  case ButtonType::Standard:
-    return ButtonIcon::ButtonStandard;
   }
 }
